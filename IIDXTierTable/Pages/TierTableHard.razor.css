@@ -34,6 +34,7 @@
     border-collapse: collapse;
     width: max-content;
     min-width: 100%;
+    border: 2px solid #a8a8a8;
 }
 
 .matrix-table th,
@@ -45,6 +46,11 @@
     line-height: 1.2;
 }
 
+.matrix-table tr.tier-boundary > th,
+.matrix-table tr.tier-boundary > td {
+    border-top: 2px solid #a8a8a8;
+}
+
 .tier-header {
     min-width: 3.2rem;
     text-align: center;
@@ -53,10 +59,15 @@
     position: sticky;
     left: 0;
     z-index: 1;
+    border-right: 2px solid #a8a8a8;
+}
+
+.matrix-table tr > td:first-of-type {
+    border-left: 2px solid #a8a8a8;
 }
 
 .matrix-table td {
-    background-color: #ffffff;
+    background-color: #f3f3f3;
     min-width: 9.5rem;
     max-width: 9.5rem;
     overflow: hidden;
@@ -68,7 +79,7 @@
 }
 
 .song-td-no-play {
-    background-color: #ffffff !important;
+    background-color: #f3f3f3 !important;
 }
 
 .song-td-low-clear {
