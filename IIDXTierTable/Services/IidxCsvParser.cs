@@ -105,6 +105,7 @@ public sealed class IidxCsvParser
         var song = new IidxSongRecord
         {
             Version = cells[0].Trim(),
+            VersionSortOrder = IidxVersionOrder.Resolve(cells[0].Trim()),
             Title = cells[1].Trim(),
             Genre = cells[2].Trim(),
             Artist = cells[3].Trim(),

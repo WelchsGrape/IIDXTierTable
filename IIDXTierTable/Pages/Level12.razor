@@ -62,7 +62,7 @@ else
         .Select(song => CreateRow(song))
         .Where(row => row is not null)
         .Select(row => row!)
-        .OrderBy(row => row.Song.Version)
+        .OrderBy(row => row.Song.VersionSortOrder)
         .ThenBy(row => row.Song.Title);
 
     protected override async Task OnInitializedAsync()

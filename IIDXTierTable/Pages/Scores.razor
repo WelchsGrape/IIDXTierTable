@@ -108,9 +108,9 @@ else
     private string selectedClearType = "ALL";
 
     private IEnumerable<string> Versions => data?.Songs
+        .OrderBy(song => song.VersionSortOrder)
         .Select(song => song.Version)
         .Distinct(StringComparer.OrdinalIgnoreCase)
-        .OrderBy(static version => version)
         ?? Enumerable.Empty<string>();
 
     private IEnumerable<string> ClearTypes => data?.Songs
