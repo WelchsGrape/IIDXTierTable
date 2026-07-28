@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using IIDXTierTable.Models
+@using IIDXTierTable.Services
+@inject BrowserStorageService Storage
+
+@inherits LayoutComponentBase
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -14,3 +18,18 @@
         </article>
     </main>
 </div>
+
+@code {
+    private bool cachePrimed;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender || cachePrimed)
+        {
+            return;
+        }
+
+        cachePrimed = true;
+        _ = Storage.PrimeCacheAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
+    }
+}
