@@ -1,11 +1,11 @@
-@page "/level-12"
+@page "/tier-table-hard"
 @using IIDXTierTable.Models
 @using IIDXTierTable.Services
 @inject BrowserStorageService Storage
 
-<PageTitle>Level 12</PageTitle>
+<PageTitle>12 하드 서열표</PageTitle>
 
-<h1>Level 12 Songs</h1>
+<h1>12 하드 서열표</h1>
 <p>저장된 데이터에서 난이도 레벨이 12인 곡만 추려 보여줍니다.</p>
 
 @if (data is null)
@@ -14,7 +14,7 @@
         저장된 데이터가 없습니다. 먼저 Import 페이지에서 CSV를 저장해 주세요.
     </div>
 }
-else if (!Level12Songs.Any())
+else if (!TierTableHardSongs.Any())
 {
     <div class="alert alert-warning" role="alert">
         레벨 12인 곡이 없습니다.
@@ -37,7 +37,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Level12Songs)
+                @foreach (var item in TierTableHardSongs)
                 {
                     <tr>
                         <td>@item.Song.Version</td>
@@ -58,7 +58,7 @@ else
 @code {
     private IidxScoreEnvelope? data;
 
-    private IEnumerable<Level12SongRow> Level12Songs => (data?.Songs ?? [])
+    private IEnumerable<TierTableHardSongRow> TierTableHardSongs => (data?.Songs ?? [])
         .Select(song => CreateRow(song))
         .Where(row => row is not null)
         .Select(row => row!)
@@ -70,7 +70,7 @@ else
         data = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
     }
 
-    private static Level12SongRow? CreateRow(IidxSongRecord song)
+    private static TierTableHardSongRow? CreateRow(IidxSongRecord song)
     {
         var matches = song.Difficulties
             .Where(pair => pair.Value.Level == 12)
@@ -86,7 +86,7 @@ else
             return null;
         }
 
-        return new Level12SongRow
+        return new TierTableHardSongRow
         {
             Song = song,
             DifficultyNames = string.Join(", ", matches.Select(match => match.Difficulty)),
@@ -97,7 +97,7 @@ else
         };
     }
 
-    private sealed class Level12SongRow
+    private sealed class TierTableHardSongRow
     {
         public required IidxSongRecord Song { get; init; }
 
