@@ -1,7 +1,9 @@
 @page "/tier-table-hard"
+@using IIDXTierTable.Models
 @using IIDXTierTable.Services
 @inject HttpClient Http
 @inject TierTableDataService TierTableData
+@inject BrowserStorageService Storage
 
 <PageTitle>12 하드 서열표</PageTitle>
 
@@ -89,7 +91,12 @@ else
 
                                                 @foreach (var song in row)
                                                 {
-                                                    <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                                    <td class="song-td">
+                                                        <div class="song-cell" title="@GetSongTooltip(song)">
+                                                            <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                            <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                        </div>
+                                                    </td>
                                                 }
 
                                                 @for (var i = row.Count; i < columnCount; i++)
@@ -139,7 +146,12 @@ else
 
                                             @foreach (var song in row)
                                             {
-                                                <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                                <td class="song-td">
+                                                    <div class="song-cell" title="@GetSongTooltip(song)">
+                                                        <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                        <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                    </div>
+                                                </td>
                                             }
 
                                             @for (var i = row.Count; i < columnCount; i++)
@@ -172,7 +184,12 @@ else
 
                                                 @foreach (var song in row)
                                                 {
-                                                    <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                                    <td class="song-td">
+                                                        <div class="song-cell" title="@GetSongTooltip(song)">
+                                                            <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                            <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                        </div>
+                                                    </td>
                                                 }
 
                                                 @for (var i = row.Count; i < columnCount; i++)
@@ -196,6 +213,7 @@ else
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private static readonly int[] ColumnCountOptions = [4, 5, 6, 7, 8, 9, 10];
     private IReadOnlyList<TierTableTitleRow> tierRows = Array.Empty<TierTableTitleRow>();
+    private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
     private bool isLoading = true;
     private string? errorMessage;
     private int columnCount = 6;
@@ -231,6 +249,7 @@ else
             await TierTableData.InitializeAsync(Http);
             tierRows = TierTableData.Rows;
             errorMessage = TierTableData.ErrorMessage;
+            await LoadUserScoreCacheAsync();
         }
         catch (Exception ex)
         {
@@ -268,6 +287,65 @@ else
         }
 
         return string.Concat(title.AsSpan(0, maxLength - 1), "…");
+    }
+
+    private async Task LoadUserScoreCacheAsync()
+    {
+        clearTypeBySong.Clear();
+
+        var envelope = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
+        if (envelope is null)
+        {
+            return;
+        }
+
+        foreach (var song in envelope.Songs)
+        {
+            foreach (var difficulty in song.Difficulties)
+            {
+                var key = BuildSongKey(song.Title, difficulty.Key);
+                clearTypeBySong[key] = difficulty.Value.ClearType;
+            }
+        }
+    }
+
+    private string GetSongTooltip(TierTableTitleRow row)
+    {
+        var clearType = GetClearType(row);
+        return string.Concat(row.Title, " (", row.Difficulty, ") - ", clearType);
+    }
+
+    private string GetLampClass(TierTableTitleRow row)
+    {
+        var clearType = GetClearType(row);
+        return clearType switch
+        {
+            "NO PLAY" => "lamp-no-play",
+            "FAILED" => "lamp-failed",
+            "ASSISTED CLEAR" => "lamp-assisted",
+            "EASY CLEAR" => "lamp-easy",
+            "CLEAR" => "lamp-clear",
+            "HARD CLEAR" => "lamp-hard",
+            "EX HARD CLEAR" => "lamp-ex-hard",
+            "FULLCOMBO CLEAR" => "lamp-full-combo",
+            _ => "lamp-no-play"
+        };
+    }
+
+    private string GetClearType(TierTableTitleRow row)
+    {
+        var key = BuildSongKey(row.Title, row.Difficulty);
+        if (clearTypeBySong.TryGetValue(key, out var clearType) && !string.IsNullOrWhiteSpace(clearType))
+        {
+            return clearType.Trim();
+        }
+
+        return "NO PLAY";
+    }
+
+    private static string BuildSongKey(string title, string difficulty)
+    {
+        return string.Concat(title.Trim(), "\u001f", difficulty.Trim());
     }
 
     private static List<List<TierTableTitleRow>> ChunkSongs(IReadOnlyList<TierTableTitleRow> songs, int chunkSize)

@@ -63,6 +63,62 @@
     text-overflow: ellipsis;
 }
 
+.song-td {
+    padding: 0 !important;
+}
+
+.song-cell {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 100%;
+}
+
+.song-title {
+    display: block;
+    padding: 0.35rem 0.45rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lamp-cell {
+    flex: 0 0 0.7rem;
+    align-self: stretch;
+}
+
+.lamp-no-play {
+    background-color: #000000;
+}
+
+.lamp-failed {
+    background-color: #d7263d;
+}
+
+.lamp-assisted {
+    background-color: #7f3fbf;
+}
+
+.lamp-easy {
+    background-color: #8ee45d;
+}
+
+.lamp-clear {
+    background-color: #7dd3fc;
+}
+
+.lamp-hard {
+    background-color: #ffffff;
+}
+
+.lamp-ex-hard {
+    background-color: #facc15;
+}
+
+.lamp-full-combo {
+    background-color: #14b8a6;
+}
+
 .pad-cell {
     background-color: #f8f8f8;
 }
