@@ -1,3 +1,85 @@
-.table-wrap {
+.matrix-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.matrix-controls > div {
+    width: 16rem;
+}
+
+.tier-matrix-groups {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.matrix-type-section {
+    border: 1px solid #d7d7d7;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background-color: #fcfcfc;
+}
+
+.type-title {
+    margin: 0 0 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.matrix-scroll {
     overflow-x: auto;
+}
+
+.matrix-table {
+    border-collapse: collapse;
+    width: max-content;
+    min-width: 100%;
+}
+
+.matrix-table th,
+.matrix-table td {
+    border: 1px solid #cfcfcf;
+    padding: 0.35rem 0.45rem;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    line-height: 1.2;
+}
+
+.tier-header {
+    min-width: 3.2rem;
+    text-align: center;
+    background-color: #efefef;
+    font-weight: 700;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+}
+
+.matrix-table td {
+    background-color: #ffffff;
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pad-cell {
+    background-color: #f8f8f8;
+}
+
+.empty-cell {
+    color: #999;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .matrix-table th,
+    .matrix-table td {
+        font-size: 0.76rem;
+    }
+
+    .matrix-table td {
+        min-width: 8rem;
+        max-width: 8rem;
+    }
 }

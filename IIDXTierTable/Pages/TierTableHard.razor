@@ -1,114 +1,340 @@
 @page "/tier-table-hard"
-@using IIDXTierTable.Models
 @using IIDXTierTable.Services
-@inject BrowserStorageService Storage
+@inject HttpClient Http
+@inject TierTableDataService TierTableData
 
 <PageTitle>12 하드 서열표</PageTitle>
 
 <h1>12 하드 서열표</h1>
-<p>저장된 데이터에서 난이도 레벨이 12인 곡만 추려 보여줍니다.</p>
+<p>IIDXTierTableData.csv를 기준으로 HardType과 HardTier별 곡 목록을 보여줍니다.</p>
 
-@if (data is null)
+@if (isLoading)
 {
     <div class="alert alert-info" role="alert">
-        저장된 데이터가 없습니다. 먼저 Import 페이지에서 CSV를 저장해 주세요.
+        데이터를 불러오는 중입니다...
     </div>
 }
-else if (!TierTableHardSongs.Any())
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+}
+else if (!tierRows.Any())
 {
     <div class="alert alert-warning" role="alert">
-        레벨 12인 곡이 없습니다.
+        표시할 하드 서열 데이터가 없습니다.
     </div>
 }
 else
 {
-    <div class="table-wrap mt-3">
-        <table class="table table-striped table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>버전</th>
-                    <th>제목</th>
-                    <th>아티스트</th>
-                    <th>레벨 12 난이도</th>
-                    <th>스코어</th>
-                    <th>클리어 타입</th>
-                    <th>DJ LEVEL</th>
-                    <th>미스카운트</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in TierTableHardSongs)
+    <div class="matrix-controls mt-3">
+        <div>
+            <label for="viewMode" class="form-label mb-1">보기 방식</label>
+            <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode">
+                <option value="@ViewMode.ByType">타입별 표 (지력/개인차 분리)</option>
+                <option value="@ViewMode.ByTier">서열별 표 (지력 아래 개인차)</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="columnCount" class="form-label mb-1">가로 칸 수</label>
+            <select id="columnCount" class="form-select form-select-sm" @bind="columnCount">
+                @foreach (var option in ColumnCountOptions)
                 {
-                    <tr>
-                        <td>@item.Song.Version</td>
-                        <td>@item.Song.Title</td>
-                        <td>@item.Song.Artist</td>
-                        <td>@item.DifficultyNames</td>
-                        <td>@item.MaxScore</td>
-                        <td>@item.ClearTypes</td>
-                        <td>@item.DjLevels</td>
-                        <td>@item.MissCounts</td>
-                    </tr>
+                    <option value="@option">@(option)칸</option>
                 }
-            </tbody>
-        </table>
+            </select>
+        </div>
     </div>
+
+    @if (selectedViewMode == ViewMode.ByType)
+    {
+        <div class="tier-matrix-groups mt-3">
+            @foreach (var typeGroup in GroupedRows)
+            {
+                <section class="matrix-type-section">
+                    <h2 class="type-title">@typeGroup.HardType</h2>
+
+                    <div class="matrix-scroll">
+                        <table class="matrix-table" aria-label="@($"{typeGroup.HardType} 하드 티어 표")">
+                            <tbody>
+                                @foreach (var tierName in TierOrder)
+                                {
+                                    if (ShouldSkipTierRow(typeGroup.HardType, tierName))
+                                    {
+                                        continue;
+                                    }
+
+                                    var songs = GetSongsByTier(typeGroup, tierName);
+                                    var songRows = ChunkSongs(songs, columnCount);
+
+                                    if (songRows.Count == 0)
+                                    {
+                                        <tr>
+                                            <th scope="row" class="tier-header">@tierName</th>
+                                            <td class="empty-cell" colspan="@columnCount">-</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
+                                        {
+                                            var row = songRows[rowIndex];
+                                            <tr>
+                                                @if (rowIndex == 0)
+                                                {
+                                                    <th scope="row" class="tier-header" rowspan="@songRows.Count">@tierName</th>
+                                                }
+
+                                                @foreach (var song in row)
+                                                {
+                                                    <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                                }
+
+                                                @for (var i = row.Count; i < columnCount; i++)
+                                                {
+                                                    <td class="pad-cell"></td>
+                                                }
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="tier-matrix-groups mt-3">
+            @foreach (var tierName in TierOrder)
+            {
+                var ziryukRows = ChunkSongs(GetSongsByTypeAndTier("지력", tierName), columnCount);
+                var varianceRows = ChunkSongs(GetSongsByTypeAndTier("개인차", tierName), columnCount);
+
+                <section class="matrix-type-section">
+                    <div class="matrix-scroll">
+                        <table class="matrix-table" aria-label="@($"{tierName} 하드 티어 비교 표")">
+                            <tbody>
+                                @if (ziryukRows.Count == 0)
+                                {
+                                    <tr>
+                                        <th scope="row" class="tier-header">지력 @tierName</th>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    for (var rowIndex = 0; rowIndex < ziryukRows.Count; rowIndex++)
+                                    {
+                                        var row = ziryukRows[rowIndex];
+                                        <tr>
+                                            @if (rowIndex == 0)
+                                            {
+                                                <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
+                                            }
+
+                                            @foreach (var song in row)
+                                            {
+                                                <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                            }
+
+                                            @for (var i = row.Count; i < columnCount; i++)
+                                            {
+                                                <td class="pad-cell"></td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+
+                                @if (!ShouldSkipTierRow("개인차", tierName))
+                                {
+                                    if (varianceRows.Count == 0)
+                                    {
+                                        <tr>
+                                            <th scope="row" class="tier-header">개인차 @tierName</th>
+                                            <td class="empty-cell" colspan="@columnCount">-</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
+                                        {
+                                            var row = varianceRows[rowIndex];
+                                            <tr>
+                                                @if (rowIndex == 0)
+                                                {
+                                                    <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
+                                                }
+
+                                                @foreach (var song in row)
+                                                {
+                                                    <td title="@song.Title">@GetShortTitle(song.Title)</td>
+                                                }
+
+                                                @for (var i = row.Count; i < columnCount; i++)
+                                                {
+                                                    <td class="pad-cell"></td>
+                                                }
+                                            </tr>
+                                        }
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+        </div>
+    }
 }
 
 @code {
-    private IidxScoreEnvelope? data;
+    private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
+    private static readonly int[] ColumnCountOptions = [4, 5, 6, 7, 8, 9, 10];
+    private IReadOnlyList<TierTableTitleRow> tierRows = Array.Empty<TierTableTitleRow>();
+    private bool isLoading = true;
+    private string? errorMessage;
+    private int columnCount = 6;
+    private ViewMode selectedViewMode = ViewMode.ByType;
 
-    private IEnumerable<TierTableHardSongRow> TierTableHardSongs => (data?.Songs ?? [])
-        .Select(song => CreateRow(song))
-        .Where(row => row is not null)
-        .Select(row => row!)
-        .OrderBy(row => row.Song.VersionSortOrder)
-        .ThenBy(row => row.Song.Title);
+    private IEnumerable<HardTypeGroup> GroupedRows => tierRows
+        .Where(static row => !string.IsNullOrWhiteSpace(row.HardType) && !string.IsNullOrWhiteSpace(row.HardTier))
+        .GroupBy(row => row.HardType)
+        .OrderBy(group => GetTypeOrder(group.Key))
+        .ThenBy(group => group.Key)
+        .Select(group => new HardTypeGroup
+        {
+            HardType = group.Key,
+            Tiers = group
+                .GroupBy(row => row.HardTier)
+                .OrderBy(tier => GetTierOrder(tier.Key))
+                .ThenBy(tier => tier.Key)
+                .Select(tier => new HardTierGroup
+                {
+                    HardTier = tier.Key,
+                    Songs = tier
+                        .OrderBy(song => song.Title)
+                        .ThenBy(song => song.Difficulty)
+                        .ToList()
+                })
+                .ToList()
+        });
 
     protected override async Task OnInitializedAsync()
     {
-        data = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
+        try
+        {
+            await TierTableData.InitializeAsync(Http);
+            tierRows = TierTableData.Rows;
+            errorMessage = TierTableData.ErrorMessage;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"데이터를 불러오지 못했습니다: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private static TierTableHardSongRow? CreateRow(IidxSongRecord song)
+    private static IReadOnlyList<TierTableTitleRow> GetSongsByTier(HardTypeGroup typeGroup, string tierName)
     {
-        var matches = song.Difficulties
-            .Where(pair => pair.Value.Level == 12)
-            .Select(pair => new
-            {
-                Difficulty = pair.Key,
-                Record = pair.Value
-            })
-            .ToList();
+        return typeGroup.Tiers
+            .FirstOrDefault(t => string.Equals(t.HardTier, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
+            ?? Array.Empty<TierTableTitleRow>();
+    }
 
-        if (matches.Count == 0)
+    private IReadOnlyList<TierTableTitleRow> GetSongsByTypeAndTier(string hardType, string tierName)
+    {
+        return tierRows
+            .Where(row => string.Equals(row.HardType, hardType, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(row.HardTier, tierName, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(row => row.Title)
+            .ThenBy(row => row.Difficulty)
+            .ToList();
+    }
+
+    private static string GetShortTitle(string title)
+    {
+        const int maxLength = 16;
+        if (title.Length <= maxLength)
         {
-            return null;
+            return title;
         }
 
-        return new TierTableHardSongRow
+        return string.Concat(title.AsSpan(0, maxLength - 1), "…");
+    }
+
+    private static List<List<TierTableTitleRow>> ChunkSongs(IReadOnlyList<TierTableTitleRow> songs, int chunkSize)
+    {
+        var chunks = new List<List<TierTableTitleRow>>();
+
+        if (chunkSize <= 0 || songs.Count == 0)
         {
-            Song = song,
-            DifficultyNames = string.Join(", ", matches.Select(match => match.Difficulty)),
-            MaxScore = matches.Max(match => match.Record.Score),
-            ClearTypes = string.Join(", ", matches.Select(match => match.Record.ClearType)),
-            DjLevels = string.Join(", ", matches.Select(match => match.Record.DjLevel)),
-            MissCounts = string.Join(", ", matches.Select(match => match.Record.MissCount))
+            return chunks;
+        }
+
+        for (var i = 0; i < songs.Count; i += chunkSize)
+        {
+            var size = Math.Min(chunkSize, songs.Count - i);
+            var chunk = new List<TierTableTitleRow>(size);
+
+            for (var j = i; j < i + size; j++)
+            {
+                chunk.Add(songs[j]);
+            }
+
+            chunks.Add(chunk);
+        }
+
+        return chunks;
+    }
+
+    private static int GetTypeOrder(string hardType)
+    {
+        return hardType switch
+        {
+            "지력" => 0,
+            "개인차" => 1,
+            _ => 2
         };
     }
 
-    private sealed class TierTableHardSongRow
+    private static int GetTierOrder(string hardTier)
     {
-        public required IidxSongRecord Song { get; init; }
-
-        public required string DifficultyNames { get; init; }
-
-        public required int MaxScore { get; init; }
-
-        public required string ClearTypes { get; init; }
-
-        public required string DjLevels { get; init; }
-
-        public required string MissCounts { get; init; }
+        var index = Array.IndexOf(TierOrder, hardTier);
+        return index >= 0 ? index : int.MaxValue;
     }
+
+    private static bool ShouldSkipTierRow(string hardType, string hardTier)
+    {
+        return string.Equals(hardType, "개인차", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(hardTier, "F", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private sealed class HardTypeGroup
+    {
+        public required string HardType { get; init; }
+
+        public required IReadOnlyList<HardTierGroup> Tiers { get; init; }
+    }
+
+    private sealed class HardTierGroup
+    {
+        public required string HardTier { get; init; }
+
+        public required IReadOnlyList<TierTableTitleRow> Songs { get; init; }
+    }
+
+    private enum ViewMode
+    {
+        ByType,
+        ByTier
+    }
+
 }
