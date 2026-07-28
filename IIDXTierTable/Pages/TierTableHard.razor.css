@@ -67,6 +67,18 @@
     padding: 0 !important;
 }
 
+.song-td-no-play {
+    background-color: #ffffff !important;
+}
+
+.song-td-low-clear {
+    background-color: #fff0f0 !important;
+}
+
+.song-td-hard-clear {
+    background-color: #eef8ff !important;
+}
+
 .song-cell {
     display: flex;
     align-items: stretch;
@@ -80,6 +92,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.song-title-hyper {
+    color: #eab308;
+}
+
+.song-title-leggendaria {
+    color: #8b5cf6;
 }
 
 .lamp-cell {
@@ -109,6 +129,7 @@
 
 .lamp-hard {
     background-color: #ffffff;
+    border-right: 1px solid #d9d9d9;
 }
 
 .lamp-ex-hard {

@@ -48,6 +48,15 @@ else
                 }
             </select>
         </div>
+
+        <div>
+            <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
+            <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode">
+                <option value="@SongSortMode.ByTitle">곡명 순</option>
+                <option value="@SongSortMode.ByLampAscending">램프별 정렬 (오름차순)</option>
+                <option value="@SongSortMode.ByLampDescending">램프별 정렬 (내림차순)</option>
+            </select>
+        </div>
     </div>
 
     @if (selectedViewMode == ViewMode.ByType)
@@ -91,10 +100,10 @@ else
 
                                                 @foreach (var song in row)
                                                 {
-                                                    <td class="song-td">
+                                                    <td class="song-td @GetSongCellClass(song)">
                                                         <div class="song-cell" title="@GetSongTooltip(song)">
                                                             <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                            <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                            <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
                                                         </div>
                                                     </td>
                                                 }
@@ -146,10 +155,10 @@ else
 
                                             @foreach (var song in row)
                                             {
-                                                <td class="song-td">
+                                                <td class="song-td @GetSongCellClass(song)">
                                                     <div class="song-cell" title="@GetSongTooltip(song)">
                                                         <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                        <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                        <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
                                                     </div>
                                                 </td>
                                             }
@@ -184,10 +193,10 @@ else
 
                                                 @foreach (var song in row)
                                                 {
-                                                    <td class="song-td">
+                                                    <td class="song-td @GetSongCellClass(song)">
                                                         <div class="song-cell" title="@GetSongTooltip(song)">
                                                             <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                            <span class="song-title">@GetShortTitle(song.Title)</span>
+                                                            <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
                                                         </div>
                                                     </td>
                                                 }
@@ -218,6 +227,7 @@ else
     private string? errorMessage;
     private int columnCount = 6;
     private ViewMode selectedViewMode = ViewMode.ByType;
+    private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
 
     private IEnumerable<HardTypeGroup> GroupedRows => tierRows
         .Where(static row => !string.IsNullOrWhiteSpace(row.HardType) && !string.IsNullOrWhiteSpace(row.HardTier))
@@ -234,10 +244,7 @@ else
                 .Select(tier => new HardTierGroup
                 {
                     HardTier = tier.Key,
-                    Songs = tier
-                        .OrderBy(song => song.Title)
-                        .ThenBy(song => song.Difficulty)
-                        .ToList()
+                    Songs = SortSongs(tier)
                 })
                 .ToList()
         });
@@ -261,7 +268,7 @@ else
         }
     }
 
-    private static IReadOnlyList<TierTableTitleRow> GetSongsByTier(HardTypeGroup typeGroup, string tierName)
+    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(HardTypeGroup typeGroup, string tierName)
     {
         return typeGroup.Tiers
             .FirstOrDefault(t => string.Equals(t.HardTier, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
@@ -270,12 +277,31 @@ else
 
     private IReadOnlyList<TierTableTitleRow> GetSongsByTypeAndTier(string hardType, string tierName)
     {
-        return tierRows
+        return SortSongs(tierRows
             .Where(row => string.Equals(row.HardType, hardType, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(row.HardTier, tierName, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(row => row.Title)
-            .ThenBy(row => row.Difficulty)
-            .ToList();
+            .ToList());
+    }
+
+    private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
+    {
+        return selectedSongSortMode switch
+        {
+            SongSortMode.ByLampAscending => songs
+                .OrderBy(row => GetLampOrder(GetClearType(row)))
+                .ThenBy(row => row.Title)
+                .ThenBy(row => row.Difficulty)
+                .ToList(),
+            SongSortMode.ByLampDescending => songs
+                .OrderByDescending(row => GetLampOrder(GetClearType(row)))
+                .ThenBy(row => row.Title)
+                .ThenBy(row => row.Difficulty)
+                .ToList(),
+            _ => songs
+                .OrderBy(row => row.Title)
+                .ThenBy(row => row.Difficulty)
+                .ToList()
+        };
     }
 
     private static string GetShortTitle(string title)
@@ -329,6 +355,54 @@ else
             "EX HARD CLEAR" => "lamp-ex-hard",
             "FULLCOMBO CLEAR" => "lamp-full-combo",
             _ => "lamp-no-play"
+        };
+    }
+
+    private string GetSongCellClass(TierTableTitleRow row)
+    {
+        var clearType = GetClearType(row);
+        if (string.Equals(clearType, "NO PLAY", StringComparison.OrdinalIgnoreCase))
+        {
+            return "song-td-no-play";
+        }
+
+        return IsHardClearOrBetter(clearType) ? "song-td-hard-clear" : "song-td-low-clear";
+    }
+
+    private string GetSongTitleClass(TierTableTitleRow row)
+    {
+        return row.Difficulty switch
+        {
+            "HYPER" => "song-title-hyper",
+            "LEGGENDARIA" => "song-title-leggendaria",
+            _ => string.Empty
+        };
+    }
+
+    private static bool IsHardClearOrBetter(string clearType)
+    {
+        return clearType switch
+        {
+            "HARD CLEAR" => true,
+            "EX HARD CLEAR" => true,
+            "FULLCOMBO CLEAR" => true,
+            _ => false
+        };
+    }
+
+    private static int GetLampOrder(string clearType)
+    {
+        return clearType switch
+        {
+            "FULLCOMBO CLEAR" => 7,
+            "EX HARD CLEAR" => 6,
+            "HARD CLEAR" => 5,
+            "CLEAR" => 4,
+            "EASY CLEAR" => 3,
+            "ASSISTED CLEAR" => 2,
+            "FAILED" => 1,
+            "NO PLAY" => 0,
+            _ => 0
         };
     }
 
@@ -413,6 +487,13 @@ else
     {
         ByType,
         ByTier
+    }
+
+    private enum SongSortMode
+    {
+        ByTitle,
+        ByLampAscending,
+        ByLampDescending
     }
 
 }
