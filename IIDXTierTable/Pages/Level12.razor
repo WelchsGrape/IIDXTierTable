@@ -1,0 +1,114 @@
+@page "/level-12"
+@using IIDXTierTable.Models
+@using IIDXTierTable.Services
+@inject BrowserStorageService Storage
+
+<PageTitle>Level 12</PageTitle>
+
+<h1>Level 12 Songs</h1>
+<p>저장된 데이터에서 난이도 레벨이 12인 곡만 추려 보여줍니다.</p>
+
+@if (data is null)
+{
+    <div class="alert alert-info" role="alert">
+        저장된 데이터가 없습니다. 먼저 Import 페이지에서 CSV를 저장해 주세요.
+    </div>
+}
+else if (!Level12Songs.Any())
+{
+    <div class="alert alert-warning" role="alert">
+        레벨 12인 곡이 없습니다.
+    </div>
+}
+else
+{
+    <div class="table-wrap mt-3">
+        <table class="table table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>버전</th>
+                    <th>제목</th>
+                    <th>아티스트</th>
+                    <th>레벨 12 난이도</th>
+                    <th>스코어</th>
+                    <th>클리어 타입</th>
+                    <th>DJ LEVEL</th>
+                    <th>미스카운트</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Level12Songs)
+                {
+                    <tr>
+                        <td>@item.Song.Version</td>
+                        <td>@item.Song.Title</td>
+                        <td>@item.Song.Artist</td>
+                        <td>@item.DifficultyNames</td>
+                        <td>@item.MaxScore</td>
+                        <td>@item.ClearTypes</td>
+                        <td>@item.DjLevels</td>
+                        <td>@item.MissCounts</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private IidxScoreEnvelope? data;
+
+    private IEnumerable<Level12SongRow> Level12Songs => (data?.Songs ?? [])
+        .Select(song => CreateRow(song))
+        .Where(row => row is not null)
+        .Select(row => row!)
+        .OrderBy(row => row.Song.Version)
+        .ThenBy(row => row.Song.Title);
+
+    protected override async Task OnInitializedAsync()
+    {
+        data = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
+    }
+
+    private static Level12SongRow? CreateRow(IidxSongRecord song)
+    {
+        var matches = song.Difficulties
+            .Where(pair => pair.Value.Level == 12)
+            .Select(pair => new
+            {
+                Difficulty = pair.Key,
+                Record = pair.Value
+            })
+            .ToList();
+
+        if (matches.Count == 0)
+        {
+            return null;
+        }
+
+        return new Level12SongRow
+        {
+            Song = song,
+            DifficultyNames = string.Join(", ", matches.Select(match => match.Difficulty)),
+            MaxScore = matches.Max(match => match.Record.Score),
+            ClearTypes = string.Join(", ", matches.Select(match => match.Record.ClearType)),
+            DjLevels = string.Join(", ", matches.Select(match => match.Record.DjLevel)),
+            MissCounts = string.Join(", ", matches.Select(match => match.Record.MissCount))
+        };
+    }
+
+    private sealed class Level12SongRow
+    {
+        public required IidxSongRecord Song { get; init; }
+
+        public required string DifficultyNames { get; init; }
+
+        public required int MaxScore { get; init; }
+
+        public required string ClearTypes { get; init; }
+
+        public required string DjLevels { get; init; }
+
+        public required string MissCounts { get; init; }
+    }
+}

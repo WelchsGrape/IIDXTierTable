@@ -1,0 +1,88 @@
+@page "/import"
+@using IIDXTierTable.Models
+@using IIDXTierTable.Services
+@inject IidxCsvParser Parser
+@inject BrowserStorageService Storage
+
+<PageTitle>CSV Import</PageTitle>
+
+<h1>CSV Import</h1>
+<p>CSV 파일 업로드 또는 텍스트 붙여넣기로 데이터를 불러온 뒤 LocalStorage에 저장합니다.</p>
+
+<div class="import-layout">
+    <section class="import-card">
+        <h2>파일 업로드</h2>
+        <InputFile OnChange="OnFileSelected" accept=".csv,text/csv" class="form-control" />
+        @if (!string.IsNullOrWhiteSpace(fileStatus))
+        {
+            <p class="hint">@fileStatus</p>
+        }
+    </section>
+
+    <section class="import-card">
+        <h2>텍스트 붙여넣기</h2>
+        <textarea class="form-control import-textarea" @bind="csvText" placeholder="여기에 CSV 내용을 붙여넣으세요"></textarea>
+        <button class="btn btn-primary mt-3" @onclick="ParseAndSaveAsync">파싱 후 저장</button>
+    </section>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(statusMessage))
+{
+    <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3" role="alert">
+        @statusMessage
+    </div>
+}
+
+@if (errors.Count > 0)
+{
+    <div class="alert alert-warning mt-3" role="alert">
+        <strong>오류 목록</strong>
+        <ul>
+            @foreach (var error in errors.Take(20))
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private string csvText = string.Empty;
+    private string fileStatus = string.Empty;
+    private string statusMessage = string.Empty;
+    private bool isSuccess;
+    private List<string> errors = [];
+
+    private async Task OnFileSelected(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+
+        await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
+        using var reader = new StreamReader(stream);
+        csvText = await reader.ReadToEndAsync();
+
+        fileStatus = $"{file.Name} 로드 완료 ({file.Size:N0} bytes)";
+        statusMessage = string.Empty;
+        errors.Clear();
+    }
+
+    private async Task ParseAndSaveAsync()
+    {
+        errors.Clear();
+        statusMessage = string.Empty;
+
+        var result = Parser.Parse(csvText);
+        if (!result.IsSuccess || result.Envelope is null)
+        {
+            isSuccess = false;
+            errors = result.Errors;
+            statusMessage = "CSV 파싱에 실패했습니다.";
+            return;
+        }
+
+        await Storage.SetItemAsync(IidxStorageKeys.Scores, result.Envelope);
+
+        isSuccess = true;
+        statusMessage = $"저장 완료: {result.Envelope.Songs.Count:N0}곡이 LocalStorage에 저장되었습니다.";
+    }
+}

@@ -1,0 +1,29 @@
+.import-layout {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.import-card {
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    padding: 1rem;
+    background: #fff;
+}
+
+.import-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.import-textarea {
+    min-height: 320px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.9rem;
+}
+
+.hint {
+    margin-top: 0.6rem;
+    color: #4d4d4d;
+    font-size: 0.9rem;
+}
