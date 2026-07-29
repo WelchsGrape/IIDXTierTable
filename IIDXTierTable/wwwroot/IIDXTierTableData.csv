@@ -21,7 +21,7 @@ ANCHOR,ANOTHER,지력,B+,지력,A,
 Ancient Scapes,ANOTHER,지력,C,지력,C,
 Ancient Scapes,LEGGENDARIA,지력,A+,지력,A+,
 Angel's Ladder,ANOTHER,지력,B,지력,B,
-Anisakis -somatic mutation type "Forza"-,LEGGENDARIA,지력,A+,지력,A+,Anisakis -somatic mutation type"Forza"-
+Anisakis -somatic mutation type ”Forza”-,LEGGENDARIA,지력,A+,지력,A+,Anisakis -somatic mutation type"Forza"-
 Antigravity,ANOTHER,지력,B+,개인차,A,
 AO-1,ANOTHER,개인차,B,지력,B,
 Apocalypse,ANOTHER,지력,E,지력,E,
@@ -98,8 +98,8 @@ DARK LEGACY,ANOTHER,지력,C,지력,B,
 dAuntl3ss,ANOTHER,지력,C,지력,D,
 DAY DREAM,ANOTHER,지력,C,개인차,A,
 DEADHEAT,ANOTHER,지력,B+,지력,B+,
-DEATH†ZIGOQ～怒りの高速爆走野郎～,ANOTHER,지력,A,지력,A+,DEATH†ZIGOQ ～怒りの高速爆走野郎～
-DEATH†ZIGOQ～怒りの高速爆走野郎～,LEGGENDARIA,지력,S+,지력,S+,DEATH†ZIGOQ ～怒りの高速爆走野郎～
+DEATH†ZIGOQ ～怒りの高速爆走野郎～,ANOTHER,지력,A,지력,A+,
+DEATH†ZIGOQ ～怒りの高速爆走野郎～,LEGGENDARIA,지력,S+,지력,S+,
 Demon March,ANOTHER,지력,A,지력,A,
 Despair of ELFERIA,ANOTHER,지력,A,지력,A,
 destination,ANOTHER,지력,C,지력,C,
@@ -244,7 +244,7 @@ Level 4,ANOTHER,개인차,A+,개인차,S,
 Level 5,ANOTHER,개인차,S,개인차,S+,
 Level One,ANOTHER,개인차,A,개인차,S,
 Liberation,ANOTHER,지력,E,지력,D,
-Life Is A Game ft.DD"ナカタ"Metal,ANOTHER,지력,A,지력,A,
+Life Is A Game ft.DD”ナカタ”Metal,ANOTHER,지력,A,지력,A,Life Is A Game ft.DD"ナカタ"Metal
 LIGHTNING STRIKES,ANOTHER,지력,E,지력,E,
 LIGHTNING STRIKES,LEGGENDARIA,지력,A+,지력,S,
 Lightspeed,ANOTHER,지력,B,지력,B+,
@@ -548,8 +548,8 @@ uәn,ANOTHER,지력,A,지력,A,uen
 クレッシェンド,ANOTHER,지력,C,지력,A,
 狂イ咲ケ焔ノ華,ANOTHER,지력,D,지력,C,
 黒髪乱れし修羅となりて,ANOTHER,지력,E,지력,E,
-恋する☆宇宙戦争っ!!,ANOTHER,지력,D,지력,C,恋する☆宇宙戦争っ！！
-恋する☆宇宙戦争っ!!,LEGGENDARIA,지력,A+,지력,A+,恋する☆宇宙戦争っ！！
+恋する☆宇宙戦争っ！！,ANOTHER,지력,D,지력,C,
+恋する☆宇宙戦争っ！！,LEGGENDARIA,지력,A+,지력,A+,
 子供の落書き帳,ANOTHER,지력,C,지력,B+,
 今宵、ロマンス横丁。,ANOTHER,지력,B+,지력,A,
 金野火織の金色提言,ANOTHER,지력,A,지력,A+,
@@ -557,7 +557,7 @@ uәn,ANOTHER,지력,A,지력,A,uen
 逆月,ANOTHER,개인차,B,지력,B+,
 桜,ANOTHER,개인차,D,개인차,C,
 #The_Relentless,LEGGENDARIA,지력,S,지력,S,
-≡＋≡,LEGGENDARIA,지력,S,지력,S,≡+≡
+≡+≡,LEGGENDARIA,지력,S,지력,S,
 残像ニ繋ガレタ追憶ノHIDEAWAY,ANOTHER,지력,F,지력,F,
 疾風迅雷,ANOTHER,지력,C,지력,B,
 疾風迅雷,LEGGENDARIA,지력,S+,지력,S+,
@@ -566,7 +566,7 @@ uәn,ANOTHER,지력,A,지력,A,uen
 灼熱 Lost Summer Dayz,ANOTHER,지력,E,개인차,B+,
 灼熱 Pt.2 Long Train Running,ANOTHER,개인차,S+,개인차,S+,
 灼熱Beach Side Bunny,ANOTHER,개인차,S+,개인차,S+,
-灼熱Beach Side Bunny (かめりあ's "Summertime D'n'B" Remix),ANOTHER,개인차,B+,개인차,A,
+灼熱Beach Side Bunny (かめりあ's ”Summertime D'n'B” Remix),ANOTHER,개인차,B+,개인차,A,灼熱Beach Side Bunny (かめりあ's "Summertime D'n'B" Remix)
 終焔のClaudia,ANOTHER,지력,D,지력,D,
 シュレーディンガーの猫,ANOTHER,지력,C,지력,C,
 少年A,ANOTHER,지력,E,지력,D,
@@ -617,9 +617,9 @@ IX,ANOTHER,지력,S,지력,S,
 刃図羅,ANOTHER,지력,D,지력,D,
 バッド・スイーツ、バッド・ドリーム,ANOTHER,개인차,A,개인차,A+,
 華爛漫 -Flowers-,LEGGENDARIA,지력,C,지력,C,
-ピアノ協奏曲第1番"蠍火",ANOTHER,개인차,A,개인차,A,ピアノ協奏曲第１番”蠍火”
-ピアノ協奏曲第1番"蠍火" (BlackY Remix)",ANOTHER,지력,A,지력,A,ピアノ協奏曲第1番”蠍火” (BlackY Remix)
-ピアノ独奏無言歌 "灰燼",ANOTHER,개인차,A+,개인차,S,
+ピアノ協奏曲第１番”蠍火”,ANOTHER,개인차,A,개인차,A,
+ピアノ協奏曲第1番”蠍火” (BlackY Remix),ANOTHER,지력,A,지력,A,
+ピアノ独奏無言歌 ”灰燼”,ANOTHER,개인차,A+,개인차,S,ピアノ独奏無言歌 "灰燼"
 焱影,ANOTHER,개인차,B,개인차,B+,火影
 ビビッド ☆+*。キラキライム,ANOTHER,지력,C,지력,B,
 卑弥呼,ANOTHER,지력,S+,지력,S+,
@@ -654,4 +654,4 @@ IX,ANOTHER,지력,S,지력,S,
 惑星鉄道,ANOTHER,지력,S+,지력,S+,
 海神,ANOTHER,개인차,C,개인차,C,
 海神,LEGGENDARIA,지력,B+,개인차,A,
-ワルツ第17番 ト短調"大犬のワルツ",ANOTHER,개인차,D,개인차,B,ワルツ第17番 ト短調”大犬のワルツ”
+ワルツ第17番 ト短調”大犬のワルツ”,ANOTHER,개인차,D,개인차,B,
