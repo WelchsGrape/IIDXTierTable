@@ -34,7 +34,7 @@ else
     <div class="matrix-controls mt-3">
         <div>
             <label for="viewMode" class="form-label mb-1">보기 방식</label>
-            <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode">
+            <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode" @bind:after="SavePreferencesAsync">
                 <option value="@ViewMode.ByTier">지력/개인차 통합</option>
                 <option value="@ViewMode.ByType">지력/개인차 분리</option>
             </select>
@@ -42,7 +42,7 @@ else
 
         <div>
             <label for="columnCount" class="form-label mb-1">가로 칸 수</label>
-            <select id="columnCount" class="form-select form-select-sm" @bind="columnCount">
+            <select id="columnCount" class="form-select form-select-sm" @bind="columnCount" @bind:after="SavePreferencesAsync">
                 @foreach (var option in ColumnCountOptions)
                 {
                     <option value="@option">@(option)칸@(option == 3 ? " (모바일 권장)" : string.Empty)</option>
@@ -52,10 +52,20 @@ else
 
         <div>
             <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
-            <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode">
+            <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
                 <option value="@SongSortMode.ByTitle">기본값</option>
                 <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
                 <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="highlightThreshold" class="form-label mb-1">배경색 기준</label>
+            <select id="highlightThreshold" class="form-select form-select-sm" @bind="selectedHighlightThreshold" @bind:after="SavePreferencesAsync">
+                @foreach (var threshold in HighlightThresholdOptions)
+                {
+                    <option value="@threshold">@threshold</option>
+                }
             </select>
         </div>
     </div>
@@ -270,6 +280,7 @@ else
 @code {
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private static readonly int[] ColumnCountOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
     private IReadOnlyList<TierTableTitleRow> tierRows = Array.Empty<TierTableTitleRow>();
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
     private bool isLoading = true;
@@ -277,6 +288,7 @@ else
     private int columnCount = 6;
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
+    private string selectedHighlightThreshold = "CLEAR";
 
     private IEnumerable<NormalTypeGroup> GroupedRows => tierRows
         .Where(static row => !string.IsNullOrWhiteSpace(row.NormalType) && !string.IsNullOrWhiteSpace(row.NormalTier))
@@ -306,6 +318,7 @@ else
     {
         try
         {
+            await ApplySavedPreferencesAsync();
             await TierTableData.InitializeAsync(Http);
             tierRows = TierTableData.Rows;
             errorMessage = TierTableData.ErrorMessage;
@@ -319,6 +332,45 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private async Task ApplySavedPreferencesAsync()
+    {
+        var preferences = await Storage.GetItemAsync<TierTablePreferences>(IidxStorageKeys.TierTableNormalOptions);
+        if (preferences is null)
+        {
+            return;
+        }
+
+        selectedViewMode = ParseViewMode(preferences.ViewMode);
+        columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
+        selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
+        selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
+            ? selectedHighlightThreshold
+            : preferences.HighlightThreshold;
+    }
+
+    private async Task SavePreferencesAsync()
+    {
+        var preferences = new TierTablePreferences
+        {
+            ViewMode = selectedViewMode.ToString(),
+            ColumnCount = columnCount,
+            SongSortMode = selectedSongSortMode.ToString(),
+            HighlightThreshold = selectedHighlightThreshold
+        };
+
+        await Storage.SetItemAsync(IidxStorageKeys.TierTableNormalOptions, preferences);
+    }
+
+    private static ViewMode ParseViewMode(string? value)
+    {
+        return Enum.TryParse<ViewMode>(value, true, out var mode) ? mode : ViewMode.ByTier;
+    }
+
+    private static SongSortMode ParseSongSortMode(string? value)
+    {
+        return Enum.TryParse<SongSortMode>(value, true, out var mode) ? mode : SongSortMode.ByTitle;
     }
 
     private IReadOnlyList<TierTableTitleRow> GetSongsByTier(NormalTypeGroup typeGroup, string tierName)
@@ -435,7 +487,7 @@ else
             return "song-td-no-play";
         }
 
-        return IsClearOrBetter(clearType) ? "song-td-high-clear" : "song-td-low-clear";
+        return IsAtOrAboveHighlightThreshold(clearType) ? "song-td-high-clear" : "song-td-low-clear";
     }
 
     private string GetSongTitleClass(TierTableTitleRow row)
@@ -448,15 +500,23 @@ else
         };
     }
 
-    private static bool IsClearOrBetter(string clearType)
+    private bool IsAtOrAboveHighlightThreshold(string clearType)
+    {
+        return GetClearTypePriority(clearType) >= GetClearTypePriority(selectedHighlightThreshold);
+    }
+
+    private static int GetClearTypePriority(string clearType)
     {
         return clearType switch
         {
-            "CLEAR" => true,
-            "HARD CLEAR" => true,
-            "EX HARD CLEAR" => true,
-            "FULLCOMBO CLEAR" => true,
-            _ => false
+            "FULLCOMBO CLEAR" => 6,
+            "EX HARD CLEAR" => 5,
+            "HARD CLEAR" => 4,
+            "CLEAR" => 3,
+            "EASY CLEAR" => 2,
+            "ASSIST CLEAR" => 1,
+            "FAILED" => 0,
+            _ => -1
         };
     }
 
