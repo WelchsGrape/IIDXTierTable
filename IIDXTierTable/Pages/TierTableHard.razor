@@ -34,8 +34,8 @@ else
         <div>
             <label for="viewMode" class="form-label mb-1">보기 방식</label>
             <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode">
-                <option value="@ViewMode.ByType">지력/개인차 분리</option>
                 <option value="@ViewMode.ByTier">지력/개인차 통합</option>
+                <option value="@ViewMode.ByType">지력/개인차 분리</option>
             </select>
         </div>
 
@@ -44,7 +44,7 @@ else
             <select id="columnCount" class="form-select form-select-sm" @bind="columnCount">
                 @foreach (var option in ColumnCountOptions)
                 {
-                    <option value="@option">@(option)칸</option>
+                    <option value="@option">@(option)칸@(option == 3 ? " (모바일 권장)" : string.Empty)</option>
                 }
             </select>
         </div>
@@ -187,7 +187,8 @@ else
                                         for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                         {
                                             var row = varianceRows[rowIndex];
-                                            <tr>
+                                            var rowClass = rowIndex == 0 && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                            <tr class="@rowClass">
                                                 @if (rowIndex == 0)
                                                 {
                                                     <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
@@ -222,13 +223,13 @@ else
 
 @code {
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
-    private static readonly int[] ColumnCountOptions = [4, 5, 6, 7, 8, 9, 10];
+    private static readonly int[] ColumnCountOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private IReadOnlyList<TierTableTitleRow> tierRows = Array.Empty<TierTableTitleRow>();
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
     private bool isLoading = true;
     private string? errorMessage;
     private int columnCount = 6;
-    private ViewMode selectedViewMode = ViewMode.ByType;
+    private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
 
     private IEnumerable<HardTypeGroup> GroupedRows => tierRows

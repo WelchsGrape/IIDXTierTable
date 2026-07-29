@@ -1,5 +1,7 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #efefef;
+    color: #1f1f1f;
 }
 
 h1:focus {
@@ -22,6 +24,7 @@ a, .btn-link {
 
 .content {
     padding-top: 1.1rem;
+    background-color: #efefef;
 }
 
 .valid.modified:not([type=checkbox]) {
