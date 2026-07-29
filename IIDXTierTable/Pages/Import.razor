@@ -7,9 +7,23 @@
 <PageTitle>CSV 가져오기</PageTitle>
 
 <h1>CSV 가져오기</h1>
-<p>CSV 파일을 업로드하거나 데이터를 붙여넣어 기기에 저장합니다.</p>
-<p>같은 기기로 재접속하면 데이터가 사라지지 않습니다.</p>
-<p>파일 업로드를 하고 저장 버튼을 눌러 데이터를 저장하세요.</p>
+<p class="mb-3">CSV 파일을 업로드하거나 데이터를 붙여넣어 기기에 저장합니다. 같은 기기로 재접속해도 저장된 데이터는 유지됩니다.</p>
+
+<div class="alert alert-secondary" role="alert">
+    <h2 class="h5 mb-3">CSV 추출 가이드</h2>
+    <p class="mb-3">아래 링크에서 점수 데이터를 확인한 뒤, CSV 형식으로 추출해 이 페이지에 업로드하거나 붙여넣어 주세요.</p>
+    <p class="mb-3">
+        <a href="https://p.eagate.573.jp/game/2dx/33/djdata/score_download.html" target="_blank" rel="noopener noreferrer">
+            e-amusement 점수 다운로드 페이지 열기 (프리미엄 코스 가입 필요)
+        </a>
+    </p>
+    <ol class="mb-0">
+        <li>위 링크에서 페이지를 열고 로그인합니다.</li>
+        <li>표시된 점수와 플레이 기록 데이터를 확인합니다.</li>
+        <li>CSV로 저장하거나 텍스트 형태로 복사합니다.</li>
+        <li>이 페이지의 업로드 또는 붙여넣기 영역에 넣고 저장합니다.</li>
+    </ol>
+</div>
 
 <div class="import-layout">
     <section class="import-card">
@@ -72,7 +86,7 @@
         using var reader = new StreamReader(stream);
         csvText = await reader.ReadToEndAsync();
 
-        fileStatus = $"{file.Name} 로드 완료 ({file.Size:N0} bytes)";
+        fileStatus = $"{file.Name} 로드 완료! 저장 버튼을 눌러 진행하세요.";
         statusMessage = string.Empty;
         errors.Clear();
     }
@@ -83,7 +97,7 @@
         statusMessage = string.Empty;
         isSuccess = false;
         isProcessing = true;
-        progressMessage = "CSV를 읽는 중입니다...";
+        progressMessage = "CSV를 파싱하는 중입니다...";
 
         await Task.Yield();
 
