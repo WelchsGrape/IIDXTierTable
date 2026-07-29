@@ -219,6 +219,59 @@ else
             }
         </div>
     }
+
+    @if (UndecidedRows.Any())
+    {
+        <div class="tier-matrix-groups mt-3">
+            <section class="matrix-type-section">
+                <div class="matrix-scroll">
+                    <table class="matrix-table" aria-label="미결정 하드 서열 표">
+                        <tbody>
+                            @{
+                                var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
+                            }
+
+                            @if (undecidedRows.Count == 0)
+                            {
+                                <tr>
+                                    <th scope="row" class="tier-header">미결정</th>
+                                    <td class="empty-cell" colspan="@columnCount">-</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                for (var rowIndex = 0; rowIndex < undecidedRows.Count; rowIndex++)
+                                {
+                                    var row = undecidedRows[rowIndex];
+                                    <tr>
+                                        @if (rowIndex == 0)
+                                        {
+                                            <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
+                                        }
+
+                                        @foreach (var song in row)
+                                        {
+                                            <td class="song-td @GetSongCellClass(song)">
+                                                <div class="song-cell" title="@GetSongTooltip(song)">
+                                                    <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                    <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                </div>
+                                            </td>
+                                        }
+
+                                        @for (var i = row.Count; i < columnCount; i++)
+                                        {
+                                            <td class="pad-cell"></td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    }
 }
 
 @code {
@@ -252,6 +305,10 @@ else
                 .ToList()
         });
 
+    private IReadOnlyList<TierTableTitleRow> UndecidedRows => SortSongs(tierRows
+        .Where(IsUndecidedHardRow)
+        .ToList());
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -284,6 +341,14 @@ else
             .Where(row => string.Equals(row.HardType, hardType, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(row.HardTier, tierName, StringComparison.OrdinalIgnoreCase))
             .ToList());
+    }
+
+    private static bool IsUndecidedHardRow(TierTableTitleRow row)
+    {
+        return string.IsNullOrWhiteSpace(row.HardType)
+            || string.IsNullOrWhiteSpace(row.HardTier)
+            || string.Equals(row.HardType, "미결정", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(row.HardTier, "미결정", StringComparison.OrdinalIgnoreCase);
     }
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
