@@ -5,10 +5,10 @@
 @inject TierTableDataService TierTableData
 @inject BrowserStorageService Storage
 
-<PageTitle>12 하드 서열표</PageTitle>
+<PageTitle>SP LEVEL 12 HARD 서열표</PageTitle>
 
-<h1>12 하드 서열표</h1>
-<p>IIDXTierTableData.csv를 기준으로 HardType과 HardTier별 곡 목록을 보여줍니다.</p>
+<h1>SP LEVEL 12 HARD 서열표</h1>
+<p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
 
 @if (isLoading)
 {
@@ -34,8 +34,8 @@ else
         <div>
             <label for="viewMode" class="form-label mb-1">보기 방식</label>
             <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode">
-                <option value="@ViewMode.ByType">타입별 표 (지력/개인차 분리)</option>
-                <option value="@ViewMode.ByTier">서열별 표 (지력 아래 개인차)</option>
+                <option value="@ViewMode.ByType">지력/개인차 분리</option>
+                <option value="@ViewMode.ByTier">지력/개인차 통합</option>
             </select>
         </div>
 
@@ -52,9 +52,9 @@ else
         <div>
             <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
             <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode">
-                <option value="@SongSortMode.ByTitle">곡명 순</option>
-                <option value="@SongSortMode.ByLampAscending">램프별 정렬 (오름차순)</option>
-                <option value="@SongSortMode.ByLampDescending">램프별 정렬 (내림차순)</option>
+                <option value="@SongSortMode.ByTitle">기본값</option>
+                <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
+                <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
             </select>
         </div>
     </div>
