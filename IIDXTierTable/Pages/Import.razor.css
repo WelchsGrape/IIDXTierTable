@@ -27,3 +27,7 @@
     color: #4d4d4d;
     font-size: 0.9rem;
 }
+
+.import-status {
+    max-width: 42rem;
+}

@@ -1,13 +1,13 @@
-@page "/tier-table-hard"
+@page "/tier-table-normal"
 @using IIDXTierTable.Models
 @using IIDXTierTable.Services
 @inject HttpClient Http
 @inject TierTableDataService TierTableData
 @inject BrowserStorageService Storage
 
-<PageTitle>SP LEVEL 12 HARD 서열표</PageTitle>
+<PageTitle>SP LEVEL 12 NORMAL 서열표</PageTitle>
 
-<h1>SP LEVEL 12 HARD 서열표</h1>
+<h1>SP LEVEL 12 NORMAL 서열표</h1>
 <p class="tier-update-date">서열표 갱신일: 26-07-23</p>
 <p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
 
@@ -26,7 +26,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
 else if (!tierRows.Any())
 {
     <div class="alert alert-warning" role="alert">
-        표시할 하드 서열 데이터가 없습니다.
+        표시할 노멀 서열 데이터가 없습니다.
     </div>
 }
 else
@@ -66,18 +66,13 @@ else
             @foreach (var typeGroup in GroupedRows)
             {
                 <section class="matrix-type-section">
-                    <h2 class="type-title">@typeGroup.HardType</h2>
+                    <h2 class="type-title">@typeGroup.NormalType</h2>
 
                     <div class="matrix-scroll">
-                        <table class="matrix-table" aria-label="@($"{typeGroup.HardType} 하드 티어 표")">
+                        <table class="matrix-table" aria-label="@($"{typeGroup.NormalType} 노멀 티어 표")">
                             <tbody>
                                 @foreach (var tierName in TierOrder)
                                 {
-                                    if (ShouldSkipTierRow(typeGroup.HardType, tierName))
-                                    {
-                                        continue;
-                                    }
-
                                     var songs = GetSongsByTier(typeGroup, tierName);
                                     var songRows = ChunkSongs(songs, columnCount);
                                     var hasTierBoundary = IsTierBoundary(tierName);
@@ -136,7 +131,7 @@ else
 
                 <section class="matrix-type-section">
                     <div class="matrix-scroll">
-                        <table class="matrix-table" aria-label="@($"{tierName} 하드 티어 비교 표")">
+                        <table class="matrix-table" aria-label="@($"{tierName} 노멀 티어 비교 표")">
                             <tbody>
                                 @if (ziryukRows.Count == 0)
                                 {
@@ -174,43 +169,40 @@ else
                                     }
                                 }
 
-                                @if (!ShouldSkipTierRow("개인차", tierName))
+                                @if (varianceRows.Count == 0)
                                 {
-                                    if (varianceRows.Count == 0)
+                                    <tr>
+                                        <th scope="row" class="tier-header">개인차 @tierName</th>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                     {
-                                        <tr>
-                                            <th scope="row" class="tier-header">개인차 @tierName</th>
-                                            <td class="empty-cell" colspan="@columnCount">-</td>
+                                        var row = varianceRows[rowIndex];
+                                        var rowClass = rowIndex == 0 && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                        <tr class="@rowClass">
+                                            @if (rowIndex == 0)
+                                            {
+                                                <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
+                                            }
+
+                                            @foreach (var song in row)
+                                            {
+                                                <td class="song-td @GetSongCellClass(song)">
+                                                    <div class="song-cell" title="@GetSongTooltip(song)">
+                                                        <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                        <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                    </div>
+                                                </td>
+                                            }
+
+                                            @for (var i = row.Count; i < columnCount; i++)
+                                            {
+                                                <td class="pad-cell"></td>
+                                            }
                                         </tr>
-                                    }
-                                    else
-                                    {
-                                        for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
-                                        {
-                                            var row = varianceRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && ziryukRows.Count > 0 ? "tier-boundary" : null;
-                                            <tr class="@rowClass">
-                                                @if (rowIndex == 0)
-                                                {
-                                                    <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
-                                                }
-
-                                                @foreach (var song in row)
-                                                {
-                                                    <td class="song-td @GetSongCellClass(song)">
-                                                        <div class="song-cell" title="@GetSongTooltip(song)">
-                                                            <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                            <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
-                                                        </div>
-                                                    </td>
-                                                }
-
-                                                @for (var i = row.Count; i < columnCount; i++)
-                                                {
-                                                    <td class="pad-cell"></td>
-                                                }
-                                            </tr>
-                                        }
                                     }
                                 }
                             </tbody>
@@ -226,7 +218,7 @@ else
         <div class="tier-matrix-groups mt-3">
             <section class="matrix-type-section">
                 <div class="matrix-scroll">
-                    <table class="matrix-table" aria-label="미결정 하드 서열 표">
+                    <table class="matrix-table" aria-label="미결정 노멀 서열 표">
                         <tbody>
                             @{
                                 var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
@@ -286,28 +278,28 @@ else
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
 
-    private IEnumerable<HardTypeGroup> GroupedRows => tierRows
-        .Where(static row => !string.IsNullOrWhiteSpace(row.HardType) && !string.IsNullOrWhiteSpace(row.HardTier))
-        .GroupBy(row => row.HardType)
+    private IEnumerable<NormalTypeGroup> GroupedRows => tierRows
+        .Where(static row => !string.IsNullOrWhiteSpace(row.NormalType) && !string.IsNullOrWhiteSpace(row.NormalTier))
+        .GroupBy(row => row.NormalType)
         .OrderBy(group => GetTypeOrder(group.Key))
         .ThenBy(group => group.Key)
-        .Select(group => new HardTypeGroup
+        .Select(group => new NormalTypeGroup
         {
-            HardType = group.Key,
+            NormalType = group.Key,
             Tiers = group
-                .GroupBy(row => row.HardTier)
+                .GroupBy(row => row.NormalTier)
                 .OrderBy(tier => GetTierOrder(tier.Key))
                 .ThenBy(tier => tier.Key)
-                .Select(tier => new HardTierGroup
+                .Select(tier => new NormalTierGroup
                 {
-                    HardTier = tier.Key,
+                    NormalTier = tier.Key,
                     Songs = SortSongs(tier)
                 })
                 .ToList()
         });
 
     private IReadOnlyList<TierTableTitleRow> UndecidedRows => SortSongs(tierRows
-        .Where(IsUndecidedHardRow)
+        .Where(IsUndecidedNormalRow)
         .ToList());
 
     protected override async Task OnInitializedAsync()
@@ -329,27 +321,27 @@ else
         }
     }
 
-    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(HardTypeGroup typeGroup, string tierName)
+    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(NormalTypeGroup typeGroup, string tierName)
     {
         return typeGroup.Tiers
-            .FirstOrDefault(t => string.Equals(t.HardTier, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
+            .FirstOrDefault(t => string.Equals(t.NormalTier, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
             ?? Array.Empty<TierTableTitleRow>();
     }
 
-    private IReadOnlyList<TierTableTitleRow> GetSongsByTypeAndTier(string hardType, string tierName)
+    private IReadOnlyList<TierTableTitleRow> GetSongsByTypeAndTier(string normalType, string tierName)
     {
         return SortSongs(tierRows
-            .Where(row => string.Equals(row.HardType, hardType, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(row.HardTier, tierName, StringComparison.OrdinalIgnoreCase))
+            .Where(row => string.Equals(row.NormalType, normalType, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(row.NormalTier, tierName, StringComparison.OrdinalIgnoreCase))
             .ToList());
     }
 
-    private static bool IsUndecidedHardRow(TierTableTitleRow row)
+    private static bool IsUndecidedNormalRow(TierTableTitleRow row)
     {
-        return string.IsNullOrWhiteSpace(row.HardType)
-            || string.IsNullOrWhiteSpace(row.HardTier)
-            || string.Equals(row.HardType, "미결정", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(row.HardTier, "미결정", StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(row.NormalType)
+            || string.IsNullOrWhiteSpace(row.NormalTier)
+            || string.Equals(row.NormalType, "미결정", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(row.NormalTier, "미결정", StringComparison.OrdinalIgnoreCase);
     }
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
@@ -443,7 +435,7 @@ else
             return "song-td-no-play";
         }
 
-        return IsHardClearOrBetter(clearType) ? "song-td-hard-clear" : "song-td-low-clear";
+        return IsClearOrBetter(clearType) ? "song-td-high-clear" : "song-td-low-clear";
     }
 
     private string GetSongTitleClass(TierTableTitleRow row)
@@ -456,10 +448,11 @@ else
         };
     }
 
-    private static bool IsHardClearOrBetter(string clearType)
+    private static bool IsClearOrBetter(string clearType)
     {
         return clearType switch
         {
+            "CLEAR" => true,
             "HARD CLEAR" => true,
             "EX HARD CLEAR" => true,
             "FULLCOMBO CLEAR" => true,
@@ -525,9 +518,9 @@ else
         return chunks;
     }
 
-    private static int GetTypeOrder(string hardType)
+    private static int GetTypeOrder(string normalType)
     {
-        return hardType switch
+        return normalType switch
         {
             "지력" => 0,
             "개인차" => 1,
@@ -535,33 +528,27 @@ else
         };
     }
 
-    private static int GetTierOrder(string hardTier)
+    private static int GetTierOrder(string normalTier)
     {
-        var index = Array.IndexOf(TierOrder, hardTier);
+        var index = Array.IndexOf(TierOrder, normalTier);
         return index >= 0 ? index : int.MaxValue;
     }
 
-    private static bool IsTierBoundary(string hardTier)
+    private static bool IsTierBoundary(string normalTier)
     {
-        return GetTierOrder(hardTier) > 0;
+        return GetTierOrder(normalTier) > 0;
     }
 
-    private static bool ShouldSkipTierRow(string hardType, string hardTier)
+    private sealed class NormalTypeGroup
     {
-        return string.Equals(hardType, "개인차", StringComparison.OrdinalIgnoreCase)
-            && string.Equals(hardTier, "F", StringComparison.OrdinalIgnoreCase);
+        public required string NormalType { get; init; }
+
+        public required IReadOnlyList<NormalTierGroup> Tiers { get; init; }
     }
 
-    private sealed class HardTypeGroup
+    private sealed class NormalTierGroup
     {
-        public required string HardType { get; init; }
-
-        public required IReadOnlyList<HardTierGroup> Tiers { get; init; }
-    }
-
-    private sealed class HardTierGroup
-    {
-        public required string HardTier { get; init; }
+        public required string NormalTier { get; init; }
 
         public required IReadOnlyList<TierTableTitleRow> Songs { get; init; }
     }

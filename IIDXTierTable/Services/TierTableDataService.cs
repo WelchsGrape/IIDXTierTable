@@ -53,6 +53,8 @@ public sealed class TierTableDataService
         var titleIndex = GetColumnIndex(headers, "Title");
         var matchTitleIndex = GetColumnIndex(headers, "MatchTitle");
         var difficultyIndex = GetColumnIndex(headers, "Difficulty");
+        var normalTypeIndex = GetColumnIndex(headers, "NormalType");
+        var normalTierIndex = GetColumnIndex(headers, "NormalTier");
         var hardTypeIndex = GetColumnIndex(headers, "HardType");
         var hardTierIndex = GetColumnIndex(headers, "HardTier");
 
@@ -64,6 +66,8 @@ public sealed class TierTableDataService
                 Title = GetCell(cells, titleIndex),
                 MatchTitle = GetCell(cells, matchTitleIndex),
                 Difficulty = GetCell(cells, difficultyIndex),
+                NormalType = GetCell(cells, normalTypeIndex),
+                NormalTier = GetCell(cells, normalTierIndex),
                 HardType = GetCell(cells, hardTypeIndex),
                 HardTier = GetCell(cells, hardTierIndex)
             };
@@ -142,6 +146,10 @@ public sealed class TierTableTitleRow
     public string MatchTitle { get; init; } = string.Empty;
 
     public string Difficulty { get; init; } = string.Empty;
+
+    public string NormalType { get; init; } = string.Empty;
+
+    public string NormalTier { get; init; } = string.Empty;
 
     public string HardType { get; init; } = string.Empty;
 
