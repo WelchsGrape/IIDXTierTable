@@ -44,6 +44,10 @@ main {
     .top-row ::deep a, .top-row ::deep .btn-link {
         margin-left: 0;
     }
+
+    article {
+        padding-left: 0 !important;
+    }
 }
 
 @media (min-width: 641px) {
