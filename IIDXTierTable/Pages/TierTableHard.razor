@@ -45,7 +45,7 @@ else
             <select id="columnCount" class="form-select form-select-sm" @bind="columnCount" @bind:after="SavePreferencesAsync">
                 @foreach (var option in ColumnCountOptions)
                 {
-                    <option value="@option">@(option)칸@(option == 3 ? " (모바일 권장)" : string.Empty)</option>
+                    <option value="@option">@(option)칸@(option < 4 ? " (모바일 권장)" : string.Empty)</option>
                 }
             </select>
         </div>
@@ -287,7 +287,7 @@ else
 
 @code {
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
-    private static readonly int[] ColumnCountOptions = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
     private IReadOnlyList<TierTableTitleRow> tierRows = Array.Empty<TierTableTitleRow>();
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
