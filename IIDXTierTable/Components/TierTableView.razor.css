@@ -44,12 +44,12 @@
     border-collapse: collapse;
     width: max-content;
     min-width: 100%;
-    border: 2px solid #a8a8a8;
+    border: 2px solid #555555;
 }
 
 .matrix-table th,
 .matrix-table td {
-    border: 1px solid #cfcfcf;
+    border: 1px solid #555555;
     padding: 0.35rem 0.45rem;
     white-space: nowrap;
     font-size: 0.82rem;
@@ -58,7 +58,7 @@
 
 .matrix-table tr.tier-boundary > th,
 .matrix-table tr.tier-boundary > td {
-    border-top: 2px solid #a8a8a8;
+    border-top: 2px solid #555555;
 }
 
 .tier-header {
@@ -71,13 +71,13 @@
     position: sticky;
     left: 0;
     z-index: 1;
-    border-right: 2px solid #a8a8a8;
+    border-right: 2px solid #555555;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .matrix-table tr > td:first-of-type {
-    border-left: 2px solid #a8a8a8;
+    border-left: 2px solid #555555;
 }
 
 .matrix-table td {
@@ -130,6 +130,7 @@
 .lamp-cell {
     flex: 0 0 0.7rem;
     align-self: stretch;
+    border-right: 1px solid #555555;
 }
 
 .lamp-no-play {
@@ -154,7 +155,6 @@
 
 .lamp-hard {
     background-color: #ffffff;
-    border-right: 1px solid #d9d9d9;
 }
 
 .lamp-ex-hard {
