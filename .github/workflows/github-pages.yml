@@ -7,7 +7,6 @@ on:
     paths:
       - 'IIDXTierTable/**'
       - '.github/workflows/github-pages.yml'
-      - 'README.md'
   workflow_dispatch:
 
 permissions:
