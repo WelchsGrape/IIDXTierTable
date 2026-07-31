@@ -1,0 +1,60 @@
+name: Build and Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'IIDXTierTable/**'
+      - '.github/workflows/github-pages.yml'
+      - 'README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish site to docs
+        run: |
+          rm -rf docs
+          dotnet publish IIDXTierTable/IIDXTierTable.csproj -c Release -o docs
+
+      - name: Fix base href for GitHub Pages
+        env:
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+        run: |
+          sed -i "s|<base href=\"/\" />|<base href=\"/${REPOSITORY_NAME}/\" />|" docs/index.html
+          touch docs/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
