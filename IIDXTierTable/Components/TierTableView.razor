@@ -308,7 +308,6 @@ else
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
-    private string HighlightCellClass => IsHard ? "song-td-hard-clear" : "song-td-high-clear";
 
     private IEnumerable<TypeGroup> GroupedRows => tierRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
@@ -551,7 +550,7 @@ else
             return "song-td-no-play";
         }
 
-        return IsAtOrAboveHighlightThreshold(clearType) ? HighlightCellClass : "song-td-low-clear";
+        return IsAtOrAboveHighlightThreshold(clearType) ? "song-td-high-clear" : "song-td-low-clear";
     }
 
     private string GetSongTitleClass(TierTableTitleRow row)
