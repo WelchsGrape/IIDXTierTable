@@ -100,7 +100,8 @@
     background-color: #fff0f0 !important;
 }
 
-.song-td-high-clear {
+.song-td-high-clear,
+.song-td-hard-clear {
     background-color: #eef8ff !important;
 }
 

@@ -4,7 +4,7 @@ namespace IIDXTierTable.Services;
 
 public sealed class TierTableDataService
 {
-    public IReadOnlyList<TierTableTitleRow> Rows { get; private set; } = Array.Empty<TierTableTitleRow>();
+    public IReadOnlyList<TierTableTitleRow> Rows { get; private set; } = [];
 
     public bool IsInitialized { get; private set; }
 
@@ -20,19 +20,15 @@ public sealed class TierTableDataService
         try
         {
             var csv = await http.GetStringAsync("IIDXTierTableData.csv");
-            Rows = ParseCsv(csv)
-                .Where(row => !string.IsNullOrWhiteSpace(row.Title))
-                .ToList();
+            Rows = [.. ParseCsv(csv).Where(row => !string.IsNullOrWhiteSpace(row.Title))];
             ErrorMessage = null;
+            IsInitialized = true;
         }
         catch (Exception ex)
         {
             ErrorMessage = ex.Message;
-            Rows = Array.Empty<TierTableTitleRow>();
-        }
-        finally
-        {
-            IsInitialized = true;
+            Rows = [];
+            IsInitialized = false;
         }
     }
 

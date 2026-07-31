@@ -28,7 +28,7 @@
 <div class="import-layout">
     <section class="import-card">
         <h2>파일 업로드</h2>
-        <InputFile OnChange="OnFileSelected" accept=".csv,text/csv" class="form-control" />
+        <InputFile OnChange="OnFileSelected" accept=".csv,text/csv" class="form-control" disabled="@isProcessing" />
         @if (!string.IsNullOrWhiteSpace(fileStatus))
         {
             <p class="hint">@fileStatus</p>
@@ -70,6 +70,8 @@
 }
 
 @code {
+    private const long MaxUploadSizeBytes = 20 * 1024 * 1024;
+
     private string csvText = string.Empty;
     private string fileStatus = string.Empty;
     private string statusMessage = string.Empty;
@@ -80,15 +82,41 @@
 
     private async Task OnFileSelected(InputFileChangeEventArgs args)
     {
+        statusMessage = string.Empty;
+        isSuccess = false;
+        errors.Clear();
+
         var file = args.File;
 
-        await using var stream = file.OpenReadStream(maxAllowedSize: 20 * 1024 * 1024);
-        using var reader = new StreamReader(stream);
-        csvText = await reader.ReadToEndAsync();
+        if (!IsSupportedCsvFile(file, out var validationError))
+        {
+            csvText = string.Empty;
+            fileStatus = string.Empty;
+            statusMessage = validationError;
+            return;
+        }
 
-        fileStatus = $"{file.Name} 로드 완료! 저장 버튼을 눌러 진행하세요.";
-        statusMessage = string.Empty;
-        errors.Clear();
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: MaxUploadSizeBytes);
+            using var reader = new StreamReader(stream);
+            csvText = await reader.ReadToEndAsync();
+
+            fileStatus = $"{file.Name} 로드 완료! 저장 버튼을 눌러 진행하세요.";
+        }
+        catch (IOException)
+        {
+            csvText = string.Empty;
+            fileStatus = string.Empty;
+            statusMessage = $"파일을 읽지 못했습니다. 업로드 가능한 최대 크기는 {MaxUploadSizeBytes / (1024 * 1024)}MB입니다.";
+        }
+        catch (Exception ex)
+        {
+            csvText = string.Empty;
+            fileStatus = string.Empty;
+            statusMessage = "파일 업로드 처리 중 오류가 발생했습니다.";
+            errors.Add(ex.Message);
+        }
     }
 
     private async Task ParseAndSaveAsync()
@@ -96,6 +124,13 @@
         errors.Clear();
         statusMessage = string.Empty;
         isSuccess = false;
+
+        if (string.IsNullOrWhiteSpace(csvText))
+        {
+            statusMessage = "저장할 CSV 내용이 없습니다. 파일 업로드 또는 붙여넣기를 먼저 진행해 주세요.";
+            return;
+        }
+
         isProcessing = true;
         progressMessage = "CSV를 파싱하는 중입니다...";
 
@@ -106,20 +141,49 @@
             var result = Parser.Parse(csvText);
             if (!result.IsSuccess || result.Envelope is null)
             {
-                errors = result.Errors;
+                errors = [.. result.Errors];
                 statusMessage = "CSV 파싱에 실패했습니다.";
                 return;
             }
 
+            progressMessage = "브라우저 저장소에 데이터를 저장하는 중입니다...";
             await Storage.SetItemAsync(IidxStorageKeys.Scores, result.Envelope);
 
             isSuccess = true;
             statusMessage = $"저장 완료: {result.Envelope.Songs.Count:N0}곡이 기기에 저장되었습니다.";
+        }
+        catch (JSException ex)
+        {
+            statusMessage = "브라우저 저장소에 데이터를 저장하지 못했습니다.";
+            errors.Add(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "저장 처리 중 예기치 못한 오류가 발생했습니다.";
+            errors.Add(ex.Message);
         }
         finally
         {
             isProcessing = false;
             progressMessage = string.Empty;
         }
+    }
+
+    private static bool IsSupportedCsvFile(IBrowserFile file, out string errorMessage)
+    {
+        var hasCsvExtension = file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase);
+        var contentType = file.ContentType?.Trim() ?? string.Empty;
+        var hasCsvContentType = string.Equals(contentType, "text/csv", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(contentType, "application/csv", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(contentType, "application/vnd.ms-excel", StringComparison.OrdinalIgnoreCase);
+
+        if (hasCsvExtension || hasCsvContentType)
+        {
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        errorMessage = "CSV 파일만 업로드할 수 있습니다. 파일 확장자(.csv) 또는 형식을 확인해 주세요.";
+        return false;
     }
 }
