@@ -46,7 +46,7 @@ main {
     }
 
     article {
-        padding-left: 0 !important;
+        padding-left: 1rem !important;
     }
 }
 
