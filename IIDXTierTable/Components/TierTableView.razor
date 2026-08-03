@@ -52,7 +52,7 @@ else
         <div>
             <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
             <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
-                <option value="@SongSortMode.ByTitle">기본값</option>
+                <option value="@SongSortMode.ByTitle">곡명</option>
                 <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
                 <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
             </select>
@@ -93,19 +93,38 @@ else
 
                                     if (songRows.Count == 0)
                                     {
-                                        <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
-                                            <th scope="row" class="tier-header">@tierName</th>
-                                            <td class="empty-cell" colspan="@columnCount">-</td>
-                                        </tr>
+                                        if (IsCompactHeaderMode)
+                                        {
+                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
+                                                <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="empty-cell" colspan="@columnCount">-</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
+                                                <th scope="row" class="tier-header">@tierName</th>
+                                                <td class="empty-cell" colspan="@columnCount">-</td>
+                                            </tr>
+                                        }
                                     }
                                     else
                                     {
+                                        if (IsCompactHeaderMode)
+                                        {
+                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
+                                                <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
+                                            </tr>
+                                        }
+
                                         for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
                                         {
                                             var row = songRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && hasTierBoundary ? "tier-boundary" : null;
+                                            var rowClass = rowIndex == 0 && !IsCompactHeaderMode && hasTierBoundary ? "tier-boundary" : null;
                                             <tr class="@rowClass">
-                                                @if (rowIndex == 0)
+                                                @if (!IsCompactHeaderMode && rowIndex == 0)
                                                 {
                                                     <th scope="row" class="tier-header" rowspan="@songRows.Count">@tierName</th>
                                                 }
@@ -152,18 +171,37 @@ else
                             <tbody>
                                 @if (ziryukRows.Count == 0)
                                 {
-                                    <tr>
-                                        <th scope="row" class="tier-header">지력 @tierName</th>
-                                        <td class="empty-cell" colspan="@columnCount">-</td>
-                                    </tr>
+                                    if (IsCompactHeaderMode)
+                                    {
+                                        <tr>
+                                            <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                        </tr>
+                                        <tr>
+                                            <td class="empty-cell" colspan="@columnCount">-</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <th scope="row" class="tier-header">지력 @tierName</th>
+                                            <td class="empty-cell" colspan="@columnCount">-</td>
+                                        </tr>
+                                    }
                                 }
                                 else
                                 {
+                                    if (IsCompactHeaderMode)
+                                    {
+                                        <tr>
+                                            <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                        </tr>
+                                    }
+
                                     for (var rowIndex = 0; rowIndex < ziryukRows.Count; rowIndex++)
                                     {
                                         var row = ziryukRows[rowIndex];
                                         <tr>
-                                            @if (rowIndex == 0)
+                                            @if (!IsCompactHeaderMode && rowIndex == 0)
                                             {
                                                 <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
                                             }
@@ -190,19 +228,38 @@ else
                                 {
                                     if (varianceRows.Count == 0)
                                     {
-                                        <tr>
-                                            <th scope="row" class="tier-header">개인차 @tierName</th>
-                                            <td class="empty-cell" colspan="@columnCount">-</td>
-                                        </tr>
+                                        if (IsCompactHeaderMode)
+                                        {
+                                            <tr>
+                                                <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="empty-cell" colspan="@columnCount">-</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <th scope="row" class="tier-header">개인차 @tierName</th>
+                                                <td class="empty-cell" colspan="@columnCount">-</td>
+                                            </tr>
+                                        }
                                     }
                                     else
                                     {
+                                        if (IsCompactHeaderMode)
+                                        {
+                                            <tr>
+                                                <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
+                                            </tr>
+                                        }
+
                                         for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                         {
                                             var row = varianceRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                            var rowClass = rowIndex == 0 && !IsCompactHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
                                             <tr class="@rowClass">
-                                                @if (rowIndex == 0)
+                                                @if (!IsCompactHeaderMode && rowIndex == 0)
                                                 {
                                                     <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
                                                 }
@@ -246,18 +303,37 @@ else
 
                             @if (undecidedRows.Count == 0)
                             {
-                                <tr>
-                                    <th scope="row" class="tier-header">미결정</th>
-                                    <td class="empty-cell" colspan="@columnCount">-</td>
-                                </tr>
+                                if (IsCompactHeaderMode)
+                                {
+                                    <tr>
+                                        <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <th scope="row" class="tier-header">미결정</th>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
+                                }
                             }
                             else
                             {
+                                if (IsCompactHeaderMode)
+                                {
+                                    <tr>
+                                        <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
+                                    </tr>
+                                }
+
                                 for (var rowIndex = 0; rowIndex < undecidedRows.Count; rowIndex++)
                                 {
                                     var row = undecidedRows[rowIndex];
                                     <tr>
-                                        @if (rowIndex == 0)
+                                        @if (!IsCompactHeaderMode && rowIndex == 0)
                                         {
                                             <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
                                         }
@@ -308,6 +384,7 @@ else
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
+    private bool IsCompactHeaderMode => columnCount <= 3;
 
     private IEnumerable<TypeGroup> GroupedRows => tierRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))

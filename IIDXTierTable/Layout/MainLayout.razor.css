@@ -36,7 +36,7 @@ main {
         text-overflow: ellipsis;
     }
 
-@media (max-width: 640.98px) {
+@media (max-width: 767px) {
     .top-row {
         justify-content: space-between;
     }
@@ -44,13 +44,9 @@ main {
     .top-row ::deep a, .top-row ::deep .btn-link {
         margin-left: 0;
     }
-
-    article {
-        padding-left: 1rem !important;
-    }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 768px) {
     .page {
         flex-direction: row;
     }
