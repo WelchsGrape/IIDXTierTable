@@ -52,7 +52,7 @@ else
         <div>
             <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
             <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
-                <option value="@SongSortMode.ByTitle">기본값</option>
+                <option value="@SongSortMode.ByTitle">곡명</option>
                 <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
                 <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
             </select>
