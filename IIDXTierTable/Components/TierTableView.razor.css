@@ -46,7 +46,26 @@
 .tier-matrix-groups {
     display: grid;
     gap: 1.5rem;
-    margin-top: 1.5rem !important;
+    margin-top: 1.5rem;
+}
+
+.tier-matrix-groups.compact-layout .matrix-type-section {
+    width: calc(100% + 3rem);
+    max-width: none;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+    .tier-matrix-groups.compact-layout .matrix-type-section {
+        width: calc(100% + 6.5rem);
+        margin-left: -3.5rem;
+        margin-right: -3rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
 }
 
 .tier-matrix-groups:last-child {
@@ -144,20 +163,20 @@
     text-overflow: ellipsis;
 }
 
-.song-td {
-    padding: 0 !important;
+.matrix-table td.song-td {
+    padding: 0;
 }
 
-.song-td-no-play {
-    background-color: #f3f3f3 !important;
+.matrix-table td.song-td-no-play {
+    background-color: #f3f3f3;
 }
 
-.song-td-low-clear {
-    background-color: #fff0f0 !important;
+.matrix-table td.song-td-low-clear {
+    background-color: #fff0f0;
 }
 
-.song-td-high-clear {
-    background-color: #eef8ff !important;
+.matrix-table td.song-td-high-clear {
+    background-color: #eef8ff;
 }
 
 .song-cell {

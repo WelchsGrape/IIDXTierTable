@@ -77,9 +77,18 @@ else
                     </select>
                 </div>
 
-                <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="useTopHeader" @bind="useTopHeader" @bind:after="SavePreferencesAsync" />
-                    <label class="form-check-label" for="useTopHeader">표머리를 왼쪽에서 위로</label>
+                <div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="useTopHeader" @bind="useTopHeader" @bind:after="SavePreferencesAsync" />
+                        <label class="form-check-label" for="useTopHeader">표머리를 위로</label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="useCompactThreeColumnLayout" @bind="useCompactLayout" @bind:after="SavePreferencesAsync" />
+                        <label class="form-check-label" for="useCompactThreeColumnLayout">표 여백 제거<br>(모바일 권장)</label>
+                    </div>
                 </div>
             </div>
         }
@@ -87,7 +96,7 @@ else
 
     @if (selectedViewMode == ViewMode.ByType)
     {
-        <div class="tier-matrix-groups mt-3">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             @foreach (var typeGroup in GroupedRows)
             {
                 <section class="matrix-type-section">
@@ -172,7 +181,7 @@ else
     }
     else
     {
-        <div class="tier-matrix-groups mt-3">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             @{
                 var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
             }
@@ -308,7 +317,7 @@ else
 
     @if (UndecidedRows.Count > 0)
     {
-        <div class="tier-matrix-groups mt-3">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             <section class="matrix-type-section">
                 <div class="matrix-scroll">
                     <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열 표")">
@@ -396,9 +405,11 @@ else
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
     private bool useTopHeader;
+    private bool useCompactLayout;
     private bool showOptions = true;
 
     private string ModeLabel => IsHard ? "하드" : "노멀";
+    private bool UseCompactLayoutMode => useCompactLayout;
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
@@ -461,6 +472,7 @@ else
         selectedViewMode = ParseViewMode(preferences.ViewMode);
         columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
         useTopHeader = preferences.UseTopHeader;
+        useCompactLayout = preferences.UseCompactLayout;
         selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
             ? selectedHighlightThreshold
@@ -474,6 +486,7 @@ else
             ViewMode = selectedViewMode.ToString(),
             ColumnCount = columnCount,
             UseTopHeader = useTopHeader,
+            UseCompactLayout = useCompactLayout,
             SongSortMode = selectedSongSortMode.ToString(),
             HighlightThreshold = selectedHighlightThreshold
         };
