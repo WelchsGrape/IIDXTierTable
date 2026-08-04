@@ -36,6 +36,65 @@
     min-width: 160px;
 }
 
+.clear-type-chart {
+    width: min(100%, 1200px);
+    margin: 1.5rem auto 0;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    box-sizing: border-box;
+}
+
+.clear-type-chart .chart-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.clear-type-chart .chart-bar {
+    display: flex;
+    min-height: 2rem;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #94a3b8;
+    background-color: #e2e8f0;
+}
+
+.clear-type-chart .chart-segment {
+    min-width: 0;
+    display: block;
+}
+
+.clear-type-chart .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.clear-type-chart .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    font-size: 0.82rem;
+}
+
+.clear-type-chart .legend-chip {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    display: inline-block;
+}
+
+.clear-type-chart .legend-count {
+    font-weight: 700;
+}
+
 @media (max-width: 383px) {
     .matrix-controls-panel > div {
         flex: 1 1 48%;
