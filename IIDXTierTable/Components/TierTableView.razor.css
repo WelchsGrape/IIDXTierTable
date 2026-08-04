@@ -50,8 +50,8 @@
 }
 
 .tier-matrix-groups.compact-layout .matrix-type-section {
-    width: calc(100% + 3rem) !important;
-    max-width: none !important;
+    width: calc(100% + 3rem);
+    max-width: none;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
     padding-left: 1.5rem;
@@ -60,7 +60,7 @@
 
 @media (min-width: 768px) {
     .tier-matrix-groups.compact-layout .matrix-type-section {
-        width: calc(100% + 6.5rem) !important;
+        width: calc(100% + 6.5rem);
         margin-left: -3.5rem;
         margin-right: -3rem;
     }
