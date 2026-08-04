@@ -94,6 +94,28 @@ else
         }
     </div>
 
+    <div class="clear-type-chart @(UseCompactLayoutMode ? "compact-layout" : string.Empty)" aria-label="클리어 타입 그래프">
+        <div class="chart-bar" role="presentation">
+            @foreach (var segment in GetClearTypeChartSegments())
+            {
+                <div class="chart-segment @GetLampClass(segment.ClearType)"
+                     style="flex-basis:@(segment.Percentage)%"
+                     title="@segment.ClearType"
+                     aria-label="@segment.ClearType">
+                </div>
+            }
+        </div>
+        <div class="chart-legend">
+            @foreach (var segment in GetClearTypeChartSegments().Where(segment => segment.Count > 0))
+            {
+                <span class="legend-item">
+                    <span class="legend-chip @GetLampClass(segment.ClearType)" aria-hidden="true"></span>
+                    <span class="legend-count">@segment.Count</span>
+                </span>
+            }
+        </div>
+    </div>
+
     @if (selectedViewMode == ViewMode.ByType)
     {
         <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
@@ -103,7 +125,7 @@ else
                     <h2 class="type-title">@typeGroup.TypeName</h2>
 
                     <div class="matrix-scroll">
-                        <table class="matrix-table" aria-label="@($"{typeGroup.TypeName} {ModeLabel} 티어 표")">
+                        <table class="matrix-table" aria-label="@($"{typeGroup.TypeName} {ModeLabel} 서열표")">
                             <tbody>
                                 @foreach (var tierName in TierOrder)
                                 {
@@ -192,7 +214,7 @@ else
 
                 <section class="matrix-type-section">
                     <div class="matrix-scroll">
-                        <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 티어 비교 표")">
+                        <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
                             <tbody>
                                 @if (ziryukRows.Count == 0)
                                 {
@@ -320,7 +342,7 @@ else
         <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             <section class="matrix-type-section">
                 <div class="matrix-scroll">
-                    <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열 표")">
+                    <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열표")">
                         <tbody>
                             @{
                                 var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
@@ -393,6 +415,7 @@ else
     public bool IsHard { get; set; }
 
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
+    private static readonly string[] ClearTypeOrder = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
 
@@ -643,6 +666,11 @@ else
     private string GetLampClass(TierTableTitleRow row)
     {
         var clearType = GetClearType(row);
+        return GetLampClass(clearType);
+    }
+
+    private static string GetLampClass(string clearType)
+    {
         return clearType switch
         {
             "NO PLAY" => "lamp-no-play",
@@ -756,6 +784,26 @@ else
         return chunks;
     }
 
+    private IReadOnlyList<ClearTypeChartSegment> GetClearTypeChartSegments()
+    {
+        var counts = ClearTypeOrder
+            .Select(clearType => new ClearTypeChartSegment(
+                clearType,
+                tierRows.Count(row => string.Equals(GetClearType(row), clearType, StringComparison.OrdinalIgnoreCase)),
+                0))
+            .ToList();
+
+        var total = counts.Sum(item => item.Count);
+        if (total > 0)
+        {
+            counts = counts
+                .Select(item => item with { Percentage = item.Count * 100.0 / total })
+                .ToList();
+        }
+
+        return counts;
+    }
+
     private static int GetTypeOrder(string typeName)
     {
         return typeName switch
@@ -776,6 +824,8 @@ else
     {
         return GetTierOrder(tierName) > 0;
     }
+
+    private sealed record ClearTypeChartSegment(string ClearType, int Count, double Percentage);
 
     private sealed class TypeGroup
     {
