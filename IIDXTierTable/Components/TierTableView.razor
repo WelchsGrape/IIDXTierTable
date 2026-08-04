@@ -94,8 +94,7 @@ else
         }
     </div>
 
-    <div class="clear-type-chart" aria-label="클리어 타입 그래프">
-        <div class="chart-title">클리어 타입 그래프</div>
+    <div class="clear-type-chart @(UseCompactLayoutMode ? "compact-layout" : string.Empty)" aria-label="클리어 타입 그래프">
         <div class="chart-bar" role="presentation">
             @foreach (var segment in GetClearTypeChartSegments())
             {

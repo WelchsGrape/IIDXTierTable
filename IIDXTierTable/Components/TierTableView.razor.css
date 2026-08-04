@@ -46,6 +46,20 @@
     box-sizing: border-box;
 }
 
+.clear-type-chart.compact-layout {
+    width: calc(100% + 3rem);
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+}
+
+@media (min-width: 768px) {
+    .clear-type-chart.compact-layout {
+        width: calc(100% + 6.5rem);
+        margin-left: -3.5rem;
+        margin-right: -3rem;
+    }
+}
+
 .clear-type-chart .chart-title {
     font-size: 1rem;
     font-weight: 700;
@@ -54,7 +68,7 @@
 
 .clear-type-chart .chart-bar {
     display: flex;
-    min-height: 2rem;
+    min-height: 1.2rem;
     border-radius: 999px;
     overflow: hidden;
     border: 1px solid #94a3b8;
@@ -89,6 +103,10 @@
     height: 0.9rem;
     border-radius: 999px;
     display: inline-block;
+}
+
+.clear-type-chart .legend-chip.lamp-hard {
+    border: 1px solid #000000;
 }
 
 .clear-type-chart .legend-count {
