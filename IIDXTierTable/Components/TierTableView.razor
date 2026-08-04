@@ -496,6 +496,7 @@ else
         columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
         useTopHeader = preferences.UseTopHeader;
         useCompactLayout = preferences.UseCompactLayout;
+        showOptions = preferences.ShowOptions;
         selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
             ? selectedHighlightThreshold
@@ -510,6 +511,7 @@ else
             ColumnCount = columnCount,
             UseTopHeader = useTopHeader,
             UseCompactLayout = useCompactLayout,
+            ShowOptions = showOptions,
             SongSortMode = selectedSongSortMode.ToString(),
             HighlightThreshold = selectedHighlightThreshold
         };
@@ -517,9 +519,10 @@ else
         await Storage.SetItemAsync(PreferencesKey, preferences);
     }
 
-    private void ToggleOptions()
+    private async Task ToggleOptions()
     {
         showOptions = !showOptions;
+        await SavePreferencesAsync();
     }
 
     private static ViewMode ParseViewMode(string? value)

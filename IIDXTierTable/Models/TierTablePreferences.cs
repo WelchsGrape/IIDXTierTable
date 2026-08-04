@@ -10,6 +10,8 @@ public sealed class TierTablePreferences
 
     public bool UseCompactLayout { get; set; }
 
+    public bool ShowOptions { get; set; } = true;
+
     public string SongSortMode { get; set; } = string.Empty;
 
     public string HighlightThreshold { get; set; } = string.Empty;
