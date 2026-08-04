@@ -49,6 +49,23 @@
     margin-top: 1.5rem !important;
 }
 
+.tier-matrix-groups.compact-layout .matrix-type-section {
+    width: calc(100% + 3rem);
+    max-width: none;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .tier-matrix-groups.compact-layout .matrix-type-section {
+        width: calc(100% + 6.5rem);
+        margin-left: -3.5rem;
+        margin-right: -3rem;
+    }
+}
+
 .tier-matrix-groups:last-child {
     margin-bottom: 1.5rem;
 }
