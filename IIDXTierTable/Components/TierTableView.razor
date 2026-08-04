@@ -96,7 +96,7 @@ else
 
     @if (selectedViewMode == ViewMode.ByType)
     {
-        <div class="tier-matrix-groups mt-3 @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             @foreach (var typeGroup in GroupedRows)
             {
                 <section class="matrix-type-section">
@@ -181,7 +181,7 @@ else
     }
     else
     {
-        <div class="tier-matrix-groups mt-3 @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             @{
                 var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
             }
@@ -317,7 +317,7 @@ else
 
     @if (UndecidedRows.Count > 0)
     {
-        <div class="tier-matrix-groups mt-3 @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
+        <div class="tier-matrix-groups @(UseCompactLayoutMode ? "compact-layout" : string.Empty)">
             <section class="matrix-type-section">
                 <div class="matrix-scroll">
                     <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열 표")">
