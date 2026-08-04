@@ -31,42 +31,58 @@ else if (!tierRows.Any())
 else
 {
     <div class="matrix-controls mt-3">
-        <div>
-            <label for="viewMode" class="form-label mb-1">보기 방식</label>
-            <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode" @bind:after="SavePreferencesAsync">
-                <option value="@ViewMode.ByTier">지력/개인차 통합</option>
-                <option value="@ViewMode.ByType">지력/개인차 분리</option>
-            </select>
+        <div class="controls-header">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="ToggleOptions">
+                @(showOptions ? "옵션 접기" : "옵션 펼치기")
+            </button>
         </div>
 
-        <div>
-            <label for="columnCount" class="form-label mb-1">가로 칸 수</label>
-            <select id="columnCount" class="form-select form-select-sm" @bind="columnCount" @bind:after="SavePreferencesAsync">
-                @foreach (var option in ColumnCountOptions)
-                {
-                    <option value="@option">@(option)칸@(option < 4 ? " (모바일 권장)" : string.Empty)</option>
-                }
-            </select>
-        </div>
+        @if (showOptions)
+        {
+            <div class="matrix-controls-panel">
+                <div>
+                    <label for="viewMode" class="form-label mb-1">보기 방식</label>
+                    <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode" @bind:after="SavePreferencesAsync">
+                        <option value="@ViewMode.ByTier">지력/개인차 통합</option>
+                        <option value="@ViewMode.ByType">지력/개인차 분리</option>
+                    </select>
+                </div>
 
-        <div>
-            <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
-            <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
-                <option value="@SongSortMode.ByTitle">곡명</option>
-                <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
-                <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
-            </select>
-        </div>
+                <div>
+                    <label for="columnCount" class="form-label mb-1">가로 칸 수</label>
+                    <select id="columnCount" class="form-select form-select-sm" @bind="columnCount" @bind:after="SavePreferencesAsync">
+                        @foreach (var option in ColumnCountOptions)
+                        {
+                            <option value="@option">@(option)칸@(option < 4 ? " (모바일 권장)" : string.Empty)</option>
+                        }
+                    </select>
+                </div>
 
-        <div>
-            <label for="highlightThreshold" class="form-label mb-1">배경색 기준</label>
-            <select id="highlightThreshold" class="form-select form-select-sm" @bind="selectedHighlightThreshold" @bind:after="SavePreferencesAsync">
-                @foreach (var threshold in HighlightThresholdOptions)
-                {
-                    <option value="@threshold">@threshold</option>
-                }
-            </select>
-        </div>
+                <div>
+                    <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
+                    <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
+                        <option value="@SongSortMode.ByTitle">곡명</option>
+                        <option value="@SongSortMode.ByLampAscending">램프(오름차순)</option>
+                        <option value="@SongSortMode.ByLampDescending">램프(내림차순)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="highlightThreshold" class="form-label mb-1">배경색 기준</label>
+                    <select id="highlightThreshold" class="form-select form-select-sm" @bind="selectedHighlightThreshold" @bind:after="SavePreferencesAsync">
+                        @foreach (var threshold in HighlightThresholdOptions)
+                        {
+                            <option value="@threshold">@threshold</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="useTopHeader" @bind="useTopHeader" @bind:after="SavePreferencesAsync" />
+                    <label class="form-check-label" for="useTopHeader">표머리를 왼쪽에서 위로</label>
+                </div>
+            </div>
+        }
     </div>
 
     @if (selectedViewMode == ViewMode.ByType)
@@ -93,7 +109,7 @@ else
 
                                     if (songRows.Count == 0)
                                     {
-                                        if (IsCompactHeaderMode)
+                                        if (UseTopHeaderMode)
                                         {
                                             <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
                                                 <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
@@ -112,7 +128,7 @@ else
                                     }
                                     else
                                     {
-                                        if (IsCompactHeaderMode)
+                                        @if (UseTopHeaderMode)
                                         {
                                             <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
                                                 <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
@@ -122,9 +138,9 @@ else
                                         for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
                                         {
                                             var row = songRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && !IsCompactHeaderMode && hasTierBoundary ? "tier-boundary" : null;
+                                            var rowClass = rowIndex == 0 && !UseTopHeaderMode && hasTierBoundary ? "tier-boundary" : null;
                                             <tr class="@rowClass">
-                                                @if (!IsCompactHeaderMode && rowIndex == 0)
+                                                @if (!UseTopHeaderMode && rowIndex == 0)
                                                 {
                                                     <th scope="row" class="tier-header" rowspan="@songRows.Count">@tierName</th>
                                                 }
@@ -171,7 +187,7 @@ else
                             <tbody>
                                 @if (ziryukRows.Count == 0)
                                 {
-                                    if (IsCompactHeaderMode)
+                                    if (UseTopHeaderMode)
                                     {
                                         <tr>
                                             <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
@@ -190,7 +206,7 @@ else
                                 }
                                 else
                                 {
-                                    if (IsCompactHeaderMode)
+                                    @if (UseTopHeaderMode)
                                     {
                                         <tr>
                                             <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
@@ -201,7 +217,7 @@ else
                                     {
                                         var row = ziryukRows[rowIndex];
                                         <tr>
-                                            @if (!IsCompactHeaderMode && rowIndex == 0)
+                                            @if (!UseTopHeaderMode && rowIndex == 0)
                                             {
                                                 <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
                                             }
@@ -228,7 +244,7 @@ else
                                 {
                                     if (varianceRows.Count == 0)
                                     {
-                                        if (IsCompactHeaderMode)
+                                        if (UseTopHeaderMode)
                                         {
                                             <tr>
                                                 <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
@@ -247,7 +263,7 @@ else
                                     }
                                     else
                                     {
-                                        if (IsCompactHeaderMode)
+                                        @if (UseTopHeaderMode)
                                         {
                                             <tr>
                                                 <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
@@ -257,9 +273,9 @@ else
                                         for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                         {
                                             var row = varianceRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && !IsCompactHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                            var rowClass = rowIndex == 0 && !UseTopHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
                                             <tr class="@rowClass">
-                                                @if (!IsCompactHeaderMode && rowIndex == 0)
+                                                @if (!UseTopHeaderMode && rowIndex == 0)
                                                 {
                                                     <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
                                                 }
@@ -303,7 +319,7 @@ else
 
                             @if (undecidedRows.Count == 0)
                             {
-                                if (IsCompactHeaderMode)
+                                if (UseTopHeaderMode)
                                 {
                                     <tr>
                                         <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
@@ -322,7 +338,7 @@ else
                             }
                             else
                             {
-                                if (IsCompactHeaderMode)
+                                if (UseTopHeaderMode)
                                 {
                                     <tr>
                                         <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
@@ -333,7 +349,7 @@ else
                                 {
                                     var row = undecidedRows[rowIndex];
                                     <tr>
-                                        @if (!IsCompactHeaderMode && rowIndex == 0)
+                                        @if (!UseTopHeaderMode && rowIndex == 0)
                                         {
                                             <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
                                         }
@@ -379,12 +395,14 @@ else
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
+    private bool useTopHeader;
+    private bool showOptions = true;
 
     private string ModeLabel => IsHard ? "하드" : "노멀";
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
-    private bool IsCompactHeaderMode => columnCount <= 3;
+    private bool UseTopHeaderMode => useTopHeader;
 
     private IEnumerable<TypeGroup> GroupedRows => tierRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
@@ -442,6 +460,7 @@ else
 
         selectedViewMode = ParseViewMode(preferences.ViewMode);
         columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
+        useTopHeader = preferences.UseTopHeader;
         selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
             ? selectedHighlightThreshold
@@ -454,11 +473,17 @@ else
         {
             ViewMode = selectedViewMode.ToString(),
             ColumnCount = columnCount,
+            UseTopHeader = useTopHeader,
             SongSortMode = selectedSongSortMode.ToString(),
             HighlightThreshold = selectedHighlightThreshold
         };
 
         await Storage.SetItemAsync(PreferencesKey, preferences);
+    }
+
+    private void ToggleOptions()
+    {
+        showOptions = !showOptions;
     }
 
     private static ViewMode ParseViewMode(string? value)
