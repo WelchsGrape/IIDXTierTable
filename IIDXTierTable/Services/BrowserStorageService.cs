@@ -5,12 +5,25 @@ namespace IIDXTierTable.Services;
 
 public sealed class BrowserStorageService(IJSRuntime jsRuntime)
 {
-    private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = false
-    };
+    private readonly JsonSerializerOptions _jsonOptions = CreateJsonOptions();
 
     private readonly Dictionary<string, CacheEntry> _cache = new(StringComparer.Ordinal);
+
+    private static JsonSerializerOptions CreateJsonOptions()
+    {
+        var options = new JsonSerializerOptions(JsonSerializerDefaults.Web)
+        {
+            WriteIndented = false
+        };
+
+        var ignoreUnknown = typeof(JsonSerializerOptions).GetProperty("IgnoreUnknownProperties");
+        if (ignoreUnknown is not null && ignoreUnknown.PropertyType == typeof(bool) && ignoreUnknown.CanWrite)
+        {
+            ignoreUnknown.SetValue(options, true);
+        }
+
+        return options;
+    }
 
     public async Task SetItemAsync<T>(string key, T value)
     {

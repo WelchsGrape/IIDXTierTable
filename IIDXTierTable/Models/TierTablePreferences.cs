@@ -8,8 +8,6 @@ public sealed class TierTablePreferences
 
     public bool UseTopHeader { get; set; }
 
-    public bool UseCompactLayout { get; set; }
-
     public bool ShowOptions { get; set; } = true;
 
     public string SongSortMode { get; set; } = string.Empty;

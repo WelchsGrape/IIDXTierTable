@@ -46,17 +46,11 @@
     box-sizing: border-box;
 }
 
-.clear-type-chart.compact-layout {
-    width: calc(100% + 3rem);
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-}
-
-@media (min-width: 768px) {
-    .clear-type-chart.compact-layout {
-        width: calc(100% + 6.5rem);
-        margin-left: -3.5rem;
-        margin-right: -3rem;
+@media (max-width: 767px) {
+    .clear-type-chart {
+        width: calc(100% + 3rem);
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
     }
 }
 
@@ -126,20 +120,12 @@
     margin-top: 1.5rem;
 }
 
-.tier-matrix-groups.compact-layout .matrix-type-section {
-    width: calc(100% + 3rem);
-    max-width: none;
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-}
-
-@media (min-width: 768px) {
-    .tier-matrix-groups.compact-layout .matrix-type-section {
-        width: calc(100% + 6.5rem);
-        margin-left: -3.5rem;
-        margin-right: -3rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
+@media (max-width: 767px) {
+    .tier-matrix-groups .matrix-type-section {
+        width: calc(100% + 3rem);
+        max-width: none;
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
     }
 }
 
