@@ -131,8 +131,6 @@
     max-width: none;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
 }
 
 @media (min-width: 768px) {
@@ -152,9 +150,9 @@
 .matrix-type-section {
     border: 1px solid #d7d7d7;
     border-radius: 0.75rem;
-    padding: 1rem;
+    padding: 0.5rem;
     background-color: #fff9d6;
-    width: min(100%, 1200px);
+    width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
 }
