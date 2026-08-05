@@ -9,6 +9,20 @@
 
 .navbar-brand {
     font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.brand-icon {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.75rem;
+    background-image: url("icon-192.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 0.25rem;
 }
 
 .bi {
