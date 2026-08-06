@@ -19,7 +19,7 @@ public sealed class TierTableDataService
 
         try
         {
-            var csv = await http.GetStringAsync("IIDXTierTableData.csv");
+            var csv = await http.GetStringAsync("SPTierData.csv");
             Rows = [.. ParseCsv(csv).Where(row => !string.IsNullOrWhiteSpace(row.Title))];
             ErrorMessage = null;
             IsInitialized = true;
