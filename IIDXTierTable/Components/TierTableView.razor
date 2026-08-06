@@ -7,7 +7,6 @@
 <PageTitle>@PageTitleText</PageTitle>
 
 <h1>@PageTitleText</h1>
-<p class="tier-update-date">서열표 갱신일: 26-07-30</p>
 <p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
 
 @if (isLoading)
@@ -89,15 +88,18 @@ else
     </div>
 
     <div class="clear-type-chart" aria-label="클리어 타입 그래프">
-        <div class="chart-bar" role="presentation">
-            @foreach (var segment in GetClearTypeChartSegments())
-            {
-                <div class="chart-segment @GetLampClass(segment.ClearType)"
-                     style="flex-basis:@(segment.Percentage)%"
-                     title="@segment.ClearType"
-                     aria-label="@segment.ClearType">
-                </div>
-            }
+        <div class="chart-bar-wrapper">
+            <div class="chart-total-count">@($"총 {tierRows.Count}곡")</div>
+            <div class="chart-bar" role="presentation">
+                @foreach (var segment in GetClearTypeChartSegments())
+                {
+                    <div class="chart-segment @GetLampClass(segment.ClearType)"
+                         style="flex-basis:@(segment.Percentage)%"
+                         title="@segment.ClearType"
+                         aria-label="@segment.ClearType">
+                    </div>
+                }
+            </div>
         </div>
         <div class="chart-legend">
             @foreach (var segment in GetClearTypeChartSegments().Where(segment => segment.Count > 0))

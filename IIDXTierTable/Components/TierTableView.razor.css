@@ -60,6 +60,19 @@
     margin-bottom: 0.75rem;
 }
 
+.clear-type-chart .chart-bar-wrapper {
+    position: relative;
+}
+
+.clear-type-chart .chart-total-count {
+    display: block;
+    text-align: right;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    color: #475569;
+    letter-spacing: -0.02em;
+}
+
 .clear-type-chart .chart-bar {
     display: flex;
     min-height: 1.2rem;
@@ -147,12 +160,6 @@
     margin: 0 0 0.75rem;
     font-size: 1.25rem;
     font-weight: 700;
-}
-
-.tier-update-date {
-    margin: 0 0 0.5rem;
-    font-size: 0.85rem;
-    color: #666;
 }
 
 .matrix-scroll {

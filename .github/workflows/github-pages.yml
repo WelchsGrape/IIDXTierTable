@@ -35,9 +35,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Publish site to docs
-        run: |
-          rm -rf docs
-          dotnet publish IIDXTierTable/IIDXTierTable.csproj -c Release -o docs
+        run: dotnet publish IIDXTierTable/IIDXTierTable.csproj -c Release -o docs
 
       - name: Disable Jekyll for Blazor assets
         run: touch docs/wwwroot/.nojekyll
