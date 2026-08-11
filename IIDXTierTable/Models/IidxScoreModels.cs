@@ -53,7 +53,17 @@ public static class IidxVersionOrder
 
     public static int Resolve(string version)
     {
-        if (Map.TryGetValue(version, out var order))
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return int.MaxValue;
+        }
+
+        if (int.TryParse(version.Trim(), out var numericOrder))
+        {
+            return numericOrder;
+        }
+
+        if (Map.TryGetValue(version.Trim(), out var order))
         {
             return order;
         }

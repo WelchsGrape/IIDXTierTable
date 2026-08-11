@@ -47,6 +47,7 @@ public sealed class TierTableDataService
 
         var headers = ParseCsvLine(lines[0]);
         var titleIndex = GetColumnIndex(headers, "Title");
+        var versionIndex = GetColumnIndex(headers, "Version");
         var matchTitleIndex = GetColumnIndex(headers, "MatchTitle");
         var difficultyIndex = GetColumnIndex(headers, "Difficulty");
         var normalTypeIndex = GetColumnIndex(headers, "NormalType");
@@ -60,6 +61,7 @@ public sealed class TierTableDataService
             var row = new TierTableTitleRow
             {
                 Title = GetCell(cells, titleIndex),
+                Version = GetCell(cells, versionIndex),
                 MatchTitle = GetCell(cells, matchTitleIndex),
                 Difficulty = GetCell(cells, difficultyIndex),
                 NormalType = GetCell(cells, normalTypeIndex),
@@ -138,6 +140,8 @@ public sealed class TierTableDataService
 public sealed class TierTableTitleRow
 {
     public string Title { get; init; } = string.Empty;
+
+    public string Version { get; init; } = string.Empty;
 
     public string MatchTitle { get; init; } = string.Empty;
 

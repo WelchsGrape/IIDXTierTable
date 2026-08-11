@@ -21,10 +21,10 @@ else if (!string.IsNullOrEmpty(errorMessage))
         @errorMessage
     </div>
 }
-else if (!tierRows.Any())
+else if (!VisibleRows.Any())
 {
     <div class="alert alert-warning" role="alert">
-        표시할 @ModeLabel 서열 데이터가 없습니다.
+        선택한 버전에 해당하는 @ModeLabel 서열 데이터가 없습니다.
     </div>
 }
 else
@@ -82,14 +82,23 @@ else
                         <label class="form-check-label" for="useTopHeader">표머리를 위로</label>
                     </div>
                 </div>
-
             </div>
         }
+
+        <div class="version-selector-panel">
+            <label for="timelineVersion" class="form-label mb-1">버전별 서열표</label>
+            <select id="timelineVersion" class="form-select form-select-sm" @bind="selectedTimelineVersion" @bind:after="SavePreferencesAsync">
+                @foreach (var option in TimelineVersionOptions)
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
     </div>
 
     <div class="clear-type-chart" aria-label="클리어 타입 그래프">
         <div class="chart-bar-wrapper">
-            <div class="chart-total-count">@($"총 {tierRows.Count}곡")</div>
+            <div class="chart-total-count">@($"총 {VisibleRows.Count}곡")</div>
             <div class="chart-bar" role="presentation">
                 @foreach (var segment in GetClearTypeChartSegments())
                 {
@@ -414,6 +423,30 @@ else
     private static readonly string[] ClearTypeOrder = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
+    private static readonly string[] TimelineVersionOptions = [
+        "Sparkle Shower",
+        "Pinky Crush",
+        "EPOLIS",
+        "RESIDENT",
+        "CastHour",
+        "BISTROVER",
+        "HEROIC VERSE",
+        "Rootage",
+        "CANNON BALLERS",
+        "SINOBUZ",
+        "copula",
+        "PENDUAL",
+        "SPADA",
+        "tricoro",
+        "Lincle",
+        "Resort Anthem",
+        "SIRIUS",
+        "EMPRESS",
+        "DJ TROOPERS",
+        "GOLD",
+        "DistorteD",
+        "HAPPY SKY"
+    ];
 
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
@@ -423,16 +456,18 @@ else
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
+    private string selectedTimelineVersion = TimelineVersionOptions[0];
     private bool useTopHeader;
     private bool showOptions = true;
 
     private string ModeLabel => IsHard ? "하드" : "노멀";
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
+    private IReadOnlyList<TierTableTitleRow> VisibleRows => tierRows.Where(IsVisibleForSelectedTimelineVersion).ToList();
     private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
     private bool UseTopHeaderMode => useTopHeader;
 
-    private IEnumerable<TypeGroup> GroupedRows => tierRows
+    private IEnumerable<TypeGroup> GroupedRows => VisibleRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
         .GroupBy(row => GetTypeName(row), StringComparer.OrdinalIgnoreCase)
         .OrderBy(group => GetTypeOrder(group.Key))
@@ -452,7 +487,7 @@ else
                 .ToList()
         });
 
-    private IReadOnlyList<TierTableTitleRow> UndecidedRows => SortSongs(tierRows
+    private IReadOnlyList<TierTableTitleRow> UndecidedRows => SortSongs(VisibleRows
         .Where(IsUndecidedRow)
         .ToList());
 
@@ -536,7 +571,7 @@ else
 
     private Dictionary<string, Dictionary<string, IReadOnlyList<TierTableTitleRow>>> BuildSongsByTypeAndTierLookup()
     {
-        return tierRows
+        return VisibleRows
             .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
             .GroupBy(row => GetTypeName(row), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
@@ -693,6 +728,12 @@ else
 
     private string GetSongTitleClass(TierTableTitleRow row)
     {
+        if (string.Equals(row.Version, "33", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(row.Difficulty, "ANOTHER", StringComparison.OrdinalIgnoreCase))
+        {
+            return "song-title-new-version";
+        }
+
         return row.Difficulty switch
         {
             "HYPER" => "song-title-hyper",
@@ -749,6 +790,24 @@ else
         return "NO PLAY";
     }
 
+    private bool IsVisibleForSelectedTimelineVersion(TierTableTitleRow row)
+    {
+        if (string.IsNullOrWhiteSpace(selectedTimelineVersion) || string.Equals(selectedTimelineVersion, "All", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(row.Version))
+        {
+            return true;
+        }
+
+        var selectedOrder = IidxVersionOrder.Resolve(selectedTimelineVersion);
+        var rowOrder = IidxVersionOrder.Resolve(row.Version);
+
+        return rowOrder <= selectedOrder;
+    }
+
     private static string BuildSongKey(string title, string difficulty)
     {
         return string.Concat(title.Trim(), "\u001f", difficulty.Trim());
@@ -784,7 +843,7 @@ else
         var counts = ClearTypeOrder
             .Select(clearType => new ClearTypeChartSegment(
                 clearType,
-                tierRows.Count(row => string.Equals(GetClearType(row), clearType, StringComparison.OrdinalIgnoreCase)),
+                VisibleRows.Count(row => string.Equals(GetClearType(row), clearType, StringComparison.OrdinalIgnoreCase)),
                 0))
             .ToList();
 

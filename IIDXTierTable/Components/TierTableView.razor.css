@@ -270,6 +270,10 @@
     color: #8b5cf6;
 }
 
+.song-title-new-version {
+    color: #65a30d;
+}
+
 .lamp-cell {
     flex: 0 0 0.7rem;
     align-self: stretch;
