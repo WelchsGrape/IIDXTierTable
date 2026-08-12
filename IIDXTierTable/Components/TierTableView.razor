@@ -472,7 +472,7 @@ else
     private bool useTopHeader;
     private bool showOptions = true;
 
-    private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin:0 auto;" : string.Empty;
+    private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
 
     private string ModeLabel => IsHard ? "하드" : "노멀";
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";

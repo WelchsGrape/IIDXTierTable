@@ -38,7 +38,7 @@
 
 .clear-type-chart {
     width: min(100%, 1200px);
-    margin: 1.5rem auto 0;
+    margin: 1.5rem auto 1.5rem;
     padding: 1rem;
     background-color: #f8fafc;
     border: 1px solid #cbd5e1;
