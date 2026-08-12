@@ -13,6 +13,19 @@ article.content {
     padding-right: 1.5rem;
 }
 
+.app-refresh-note {
+    width: min(100%, 1200px);
+    margin: 1.5rem auto 0;
+    padding: 0.75rem 1.5rem 1rem;
+    border-top: 1px solid #000000;
+}
+
+.app-refresh-note p {
+    margin-bottom: 0.15rem;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
 .sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
