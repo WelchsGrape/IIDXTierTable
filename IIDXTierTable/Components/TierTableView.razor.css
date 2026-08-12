@@ -54,12 +54,6 @@
     }
 }
 
-.clear-type-chart .chart-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-}
-
 .clear-type-chart .chart-bar-wrapper {
     position: relative;
 }

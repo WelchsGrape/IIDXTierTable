@@ -423,10 +423,10 @@ else
 
 @code {
     [Parameter]
-    public bool IsHard { get; set; }
+    public DifficultyMode Mode { get; set; }
 
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
-    private static readonly string[] ClearTypeOrder = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
+    private static readonly string[] ClearTypeLabels = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly int[] TableMaxWidthOptions = [0, 1200, 1400, 1600, 1800, 2000];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
@@ -470,11 +470,11 @@ else
 
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
 
-    private string ModeLabel => IsHard ? "하드" : "노멀";
-    private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
+    private string ModeLabel => Mode == DifficultyMode.Hard ? "하드" : "노멀";
+    private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private IReadOnlyList<TierTableTitleRow> VisibleRows => tierRows.Where(IsVisibleForSelectedTimelineVersion).ToList();
-    private string DefaultHighlightThreshold => IsHard ? "HARD CLEAR" : "CLEAR";
-    private string PreferencesKey => IsHard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
+    private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
+    private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
     private bool UseTopHeaderMode => useTopHeader;
 
     private IEnumerable<TypeGroup> GroupedRows => VisibleRows
@@ -533,13 +533,13 @@ else
 
         selectedViewMode = ParseViewMode(preferences.ViewMode);
         columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
-        useTopHeader = preferences.UseTopHeader;
-        showOptions = preferences.ShowOptions;
         selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
             ? selectedHighlightThreshold
             : preferences.HighlightThreshold;
         selectedTableMaxWidth = preferences.TableMaxWidth > 0 ? preferences.TableMaxWidth : selectedTableMaxWidth;
+        useTopHeader = preferences.UseTopHeader;
+        showOptions = preferences.ShowOptions;
     }
 
     private async Task SavePreferencesAsync()
@@ -549,10 +549,10 @@ else
             ViewMode = selectedViewMode.ToString(),
             ColumnCount = columnCount,
             TableMaxWidth = selectedTableMaxWidth,
-            UseTopHeader = useTopHeader,
-            ShowOptions = showOptions,
             SongSortMode = selectedSongSortMode.ToString(),
-            HighlightThreshold = selectedHighlightThreshold
+            HighlightThreshold = selectedHighlightThreshold,
+            UseTopHeader = useTopHeader,
+            ShowOptions = showOptions
         };
 
         await Storage.SetItemAsync(PreferencesKey, preferences);
@@ -613,12 +613,12 @@ else
 
     private string GetTypeName(TierTableTitleRow row)
     {
-        return IsHard ? row.HardType : row.NormalType;
+        return Mode == DifficultyMode.Hard ? row.HardType : row.NormalType;
     }
 
     private string GetTierName(TierTableTitleRow row)
     {
-        return IsHard ? row.HardTier : row.NormalTier;
+        return Mode == DifficultyMode.Hard ? row.HardTier : row.NormalTier;
     }
 
     private bool IsUndecidedRow(TierTableTitleRow row)
@@ -646,13 +646,13 @@ else
         return selectedSongSortMode switch
         {
             SongSortMode.ByLampAscending => songs
-                .OrderBy(row => GetLampOrder(GetClearType(row)))
+                .OrderBy(row => GetClearTypeOrder(GetClearType(row)))
                 .ThenBy(row => GetTitleSortCategory(row.Title))
                 .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(row => row.Difficulty)
                 .ToList(),
             SongSortMode.ByLampDescending => songs
-                .OrderByDescending(row => GetLampOrder(GetClearType(row)))
+                .OrderByDescending(row => GetClearTypeOrder(GetClearType(row)))
                 .ThenBy(row => GetTitleSortCategory(row.Title))
                 .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(row => row.Difficulty)
@@ -737,7 +737,9 @@ else
             return "song-td-no-play";
         }
 
-        return IsAtOrAboveHighlightThreshold(clearType) ? "song-td-high-clear" : "song-td-low-clear";
+        return GetClearTypeOrder(clearType) >= GetClearTypeOrder(selectedHighlightThreshold)
+            ? "song-td-high-clear"
+            : "song-td-low-clear";
     }
 
     private string GetSongTitleClass(TierTableTitleRow row)
@@ -756,40 +758,33 @@ else
         };
     }
 
-    private bool IsAtOrAboveHighlightThreshold(string clearType)
-    {
-        return GetClearTypePriority(clearType) >= GetClearTypePriority(selectedHighlightThreshold);
-    }
-
-    private static int GetClearTypePriority(string clearType)
+    private static ClearTypeLevel GetClearTypeOrder(string clearType)
     {
         return clearType switch
         {
-            "FULLCOMBO CLEAR" => 6,
-            "EX HARD CLEAR" => 5,
-            "HARD CLEAR" => 4,
-            "CLEAR" => 3,
-            "EASY CLEAR" => 2,
-            "ASSIST CLEAR" => 1,
-            "FAILED" => 0,
-            _ => -1
+            "NO PLAY" => ClearTypeLevel.NoPlay,
+            "FAILED" => ClearTypeLevel.Failed,
+            "ASSIST CLEAR" => ClearTypeLevel.AssistClear,
+            "EASY CLEAR" => ClearTypeLevel.EasyClear,
+            "CLEAR" => ClearTypeLevel.Clear,
+            "HARD CLEAR" => ClearTypeLevel.HardClear,
+            "EX HARD CLEAR" => ClearTypeLevel.ExHardClear,
+            "FULLCOMBO CLEAR" => ClearTypeLevel.FullcomboClear,
+            _ => ClearTypeLevel.Unknown
         };
     }
 
-    private static int GetLampOrder(string clearType)
+    private enum ClearTypeLevel
     {
-        return clearType switch
-        {
-            "FULLCOMBO CLEAR" => 7,
-            "EX HARD CLEAR" => 6,
-            "HARD CLEAR" => 5,
-            "CLEAR" => 4,
-            "EASY CLEAR" => 3,
-            "ASSIST CLEAR" => 2,
-            "FAILED" => 1,
-            "NO PLAY" => 0,
-            _ => 0
-        };
+        Unknown = -1,
+        NoPlay = 0,
+        Failed = 1,
+        AssistClear = 2,
+        EasyClear = 3,
+        Clear = 4,
+        HardClear = 5,
+        ExHardClear = 6,
+        FullcomboClear = 7
     }
 
     private string GetClearType(TierTableTitleRow row)
@@ -854,7 +849,7 @@ else
 
     private IReadOnlyList<ClearTypeChartSegment> GetClearTypeChartSegments()
     {
-        var counts = ClearTypeOrder
+        var counts = ClearTypeLabels
             .Select(clearType => new ClearTypeChartSegment(
                 clearType,
                 VisibleRows.Count(row => string.Equals(GetClearType(row), clearType, StringComparison.OrdinalIgnoreCase)),
