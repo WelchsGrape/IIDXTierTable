@@ -6,11 +6,13 @@ public sealed class TierTablePreferences
 
     public int ColumnCount { get; set; }
 
-    public bool UseTopHeader { get; set; }
-
-    public bool ShowOptions { get; set; } = true;
+    public int TableMaxWidth { get; set; }
 
     public string SongSortMode { get; set; } = string.Empty;
 
     public string HighlightThreshold { get; set; } = string.Empty;
+
+    public bool UseTopHeader { get; set; }
+
+    public bool ShowOptions { get; set; } = true;
 }

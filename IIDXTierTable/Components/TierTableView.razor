@@ -58,6 +58,16 @@ else
                 </div>
 
                 <div>
+                    <label for="tableMaxWidth" class="form-label mb-1">표 최대 너비</label>
+                    <select id="tableMaxWidth" class="form-select form-select-sm" @bind="selectedTableMaxWidth" @bind:after="SavePreferencesAsync">
+                        @foreach (var option in TableMaxWidthOptions)
+                        {
+                            <option value="@option">@(option == 0 ? "자동" : $"{option}px")</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
                     <label for="songSortMode" class="form-label mb-1">서열 내 정렬</label>
                     <select id="songSortMode" class="form-select form-select-sm" @bind="selectedSongSortMode" @bind:after="SavePreferencesAsync">
                         <option value="@SongSortMode.ByTitle">곡명</option>
@@ -123,13 +133,13 @@ else
 
     @if (selectedViewMode == ViewMode.ByType)
     {
-        <div class="tier-matrix-groups">
+        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
             @foreach (var typeGroup in GroupedRows)
             {
                 <section class="matrix-type-section">
                     <h2 class="type-title">@typeGroup.TypeName</h2>
 
-                    <div class="matrix-scroll">
+                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
                         <table class="matrix-table" aria-label="@($"{typeGroup.TypeName} {ModeLabel} 서열표")">
                             <tbody>
                                 @foreach (var tierName in TierOrder)
@@ -208,7 +218,7 @@ else
     }
     else
     {
-        <div class="tier-matrix-groups">
+        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
             @{
                 var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
             }
@@ -218,7 +228,7 @@ else
                 var varianceRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "개인차", tierName), columnCount);
 
                 <section class="matrix-type-section">
-                    <div class="matrix-scroll">
+                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
                         <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
                             <tbody>
                                 @if (ziryukRows.Count == 0)
@@ -344,9 +354,9 @@ else
 
     @if (UndecidedRows.Count > 0)
     {
-        <div class="tier-matrix-groups">
+        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
             <section class="matrix-type-section">
-                <div class="matrix-scroll">
+                <div class="matrix-scroll" style="@TableMaxWidthStyle">
                     <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열표")">
                         <tbody>
                             @{
@@ -422,6 +432,7 @@ else
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private static readonly string[] ClearTypeOrder = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    private static readonly int[] TableMaxWidthOptions = [0, 1200, 1400, 1600, 1800, 2000];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
     private static readonly string[] TimelineVersionOptions = [
         "Sparkle Shower",
@@ -453,12 +464,15 @@ else
     private bool isLoading = true;
     private string? errorMessage;
     private int columnCount = 6;
+    private int selectedTableMaxWidth = 1200;
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
     private string selectedTimelineVersion = TimelineVersionOptions[0];
     private bool useTopHeader;
     private bool showOptions = true;
+
+    private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin:0 auto;" : string.Empty;
 
     private string ModeLabel => IsHard ? "하드" : "노멀";
     private string PageTitleText => IsHard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
@@ -529,6 +543,7 @@ else
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
             ? selectedHighlightThreshold
             : preferences.HighlightThreshold;
+        selectedTableMaxWidth = preferences.TableMaxWidth > 0 ? preferences.TableMaxWidth : selectedTableMaxWidth;
     }
 
     private async Task SavePreferencesAsync()
@@ -537,6 +552,7 @@ else
         {
             ViewMode = selectedViewMode.ToString(),
             ColumnCount = columnCount,
+            TableMaxWidth = selectedTableMaxWidth,
             UseTopHeader = useTopHeader,
             ShowOptions = showOptions,
             SongSortMode = selectedSongSortMode.ToString(),
