@@ -155,25 +155,16 @@ else
 
                                     if (songRows.Count == 0)
                                     {
-                                        if (UseTopHeaderMode)
-                                        {
-                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
-                                                <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
-                                            </tr>
-                                            <tr>
-                                                <td class="empty-cell" colspan="@columnCount">-</td>
-                                            </tr>
-                                        }
-                                        else
-                                        {
-                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
-                                                <th scope="row" class="tier-header">@tierName</th>
-                                                <td class="empty-cell" colspan="@columnCount">-</td>
-                                            </tr>
-                                        }
+                                        continue;
                                     }
-                                    else
+
+                                    if (UseTopHeaderMode)
                                     {
+                                        <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
+                                            <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
+                                        </tr>
+                                    }
+                                    
                                         @if (UseTopHeaderMode)
                                         {
                                             <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
@@ -226,6 +217,11 @@ else
             {
                 var ziryukRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "지력", tierName), columnCount);
                 var varianceRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "개인차", tierName), columnCount);
+
+                if (ziryukRows.Count == 0 && varianceRows.Count == 0)
+                {
+                    continue;
+                }
 
                 <section class="matrix-type-section">
                     <div class="matrix-scroll" style="@TableMaxWidthStyle">
@@ -638,9 +634,11 @@ else
 
     private bool ShouldSkipTierRow(string typeName, string tierName)
     {
-        return IsHard
-            && string.Equals(typeName, "개인차", StringComparison.OrdinalIgnoreCase)
-            && string.Equals(tierName, "F", StringComparison.OrdinalIgnoreCase);
+        var hasContent = VisibleRows.Any(row =>
+            string.Equals(GetTypeName(row), typeName, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(GetTierName(row), tierName, StringComparison.OrdinalIgnoreCase));
+
+        return !hasContent;
     }
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
