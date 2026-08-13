@@ -6,6 +6,8 @@ public sealed class TierTableDataService
 {
     public IReadOnlyList<TierTableTitleRow> Rows { get; private set; } = [];
 
+    public int CurrentRankCount { get; private set; }
+
     public bool IsInitialized { get; private set; }
 
     public string? ErrorMessage { get; private set; }
@@ -21,6 +23,7 @@ public sealed class TierTableDataService
         {
             var csv = await http.GetStringAsync("SP12TierData.csv");
             Rows = [.. ParseCsv(csv).Where(row => !string.IsNullOrWhiteSpace(row.Title))];
+            CurrentRankCount = Rows.Count(row => string.Equals(row.RankTier, "1", StringComparison.Ordinal));
             ErrorMessage = null;
             IsInitialized = true;
         }
@@ -28,6 +31,7 @@ public sealed class TierTableDataService
         {
             ErrorMessage = ex.Message;
             Rows = [];
+            CurrentRankCount = 0;
             IsInitialized = false;
         }
     }
@@ -46,28 +50,30 @@ public sealed class TierTableDataService
         }
 
         var headers = ParseCsvLine(lines[0]);
-        var titleIndex = GetColumnIndex(headers, "Title");
         var versionIndex = GetColumnIndex(headers, "Version");
+        var titleIndex = GetColumnIndex(headers, "Title");
         var matchTitleIndex = GetColumnIndex(headers, "MatchTitle");
         var difficultyIndex = GetColumnIndex(headers, "Difficulty");
         var normalTypeIndex = GetColumnIndex(headers, "NormalType");
         var normalTierIndex = GetColumnIndex(headers, "NormalTier");
         var hardTypeIndex = GetColumnIndex(headers, "HardType");
         var hardTierIndex = GetColumnIndex(headers, "HardTier");
+        var rankTierIndex = GetColumnIndex(headers, "RankTier");
 
         for (var i = 1; i < lines.Count; i++)
         {
             var cells = ParseCsvLine(lines[i]);
             var row = new TierTableTitleRow
             {
-                Title = GetCell(cells, titleIndex),
                 Version = GetCell(cells, versionIndex),
+                Title = GetCell(cells, titleIndex),
                 MatchTitle = GetCell(cells, matchTitleIndex),
                 Difficulty = GetCell(cells, difficultyIndex),
                 NormalType = GetCell(cells, normalTypeIndex),
                 NormalTier = GetCell(cells, normalTierIndex),
                 HardType = GetCell(cells, hardTypeIndex),
-                HardTier = GetCell(cells, hardTierIndex)
+                HardTier = GetCell(cells, hardTierIndex),
+                RankTier = GetCell(cells, rankTierIndex)
             };
 
             if (!string.IsNullOrWhiteSpace(row.Title) || !string.IsNullOrWhiteSpace(row.Difficulty) || !string.IsNullOrWhiteSpace(row.HardType) || !string.IsNullOrWhiteSpace(row.HardTier))
@@ -139,9 +145,9 @@ public sealed class TierTableDataService
 
 public sealed class TierTableTitleRow
 {
-    public string Title { get; init; } = string.Empty;
-
     public string Version { get; init; } = string.Empty;
+
+    public string Title { get; init; } = string.Empty;
 
     public string MatchTitle { get; init; } = string.Empty;
 
@@ -154,4 +160,6 @@ public sealed class TierTableTitleRow
     public string HardType { get; init; } = string.Empty;
 
     public string HardTier { get; init; } = string.Empty;
+
+    public string RankTier { get; init; } = string.Empty;
 }

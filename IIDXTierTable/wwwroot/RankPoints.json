@@ -1,0 +1,58 @@
+{
+  "1": {
+    "ASSIST CLEAR": 1,
+    "EASY CLEAR": 5,
+    "CLEAR": 7,
+    "HARD CLEAR": 20,
+    "EX HARD CLEAR": 40,
+    "FULLCOMBO CLEAR": 40
+  },
+  "2": {
+    "ASSIST CLEAR": 2,
+    "EASY CLEAR": 10,
+    "CLEAR": 14,
+    "HARD CLEAR": 40,
+    "EX HARD CLEAR": 80,
+    "FULLCOMBO CLEAR": 80
+  },
+  "3": {
+    "ASSIST CLEAR": 3,
+    "EASY CLEAR": 15,
+    "CLEAR": 21,
+    "HARD CLEAR": 60,
+    "EX HARD CLEAR": 120,
+    "FULLCOMBO CLEAR": 120
+  },
+  "4": {
+    "ASSIST CLEAR": 5,
+    "EASY CLEAR": 25,
+    "CLEAR": 35,
+    "HARD CLEAR": 100,
+    "EX HARD CLEAR": 200,
+    "FULLCOMBO CLEAR": 200
+  },
+  "5": {
+    "ASSIST CLEAR": 8,
+    "EASY CLEAR": 40,
+    "CLEAR": 56,
+    "HARD CLEAR": 160,
+    "EX HARD CLEAR": 320,
+    "FULLCOMBO CLEAR": 320
+  },
+  "6": {
+    "ASSIST CLEAR": 15,
+    "EASY CLEAR": 75,
+    "CLEAR": 105,
+    "HARD CLEAR": 300,
+    "EX HARD CLEAR": 600,
+    "FULLCOMBO CLEAR": 600
+  },
+  "7": {
+    "ASSIST CLEAR": 26,
+    "EASY CLEAR": 130,
+    "CLEAR": 182,
+    "HARD CLEAR": 520,
+    "EX HARD CLEAR": 1040,
+    "FULLCOMBO CLEAR": 1040
+  }
+}

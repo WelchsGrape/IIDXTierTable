@@ -11,5 +11,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<BrowserStorageService>();
 builder.Services.AddScoped<IidxCsvParser>();
 builder.Services.AddScoped<TierTableDataService>();
+builder.Services.AddScoped<RankPointService>();
 
 await builder.Build().RunAsync();

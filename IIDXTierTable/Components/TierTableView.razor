@@ -2,6 +2,7 @@
 @using IIDXTierTable.Services
 @inject HttpClient Http
 @inject TierTableDataService TierTableData
+@inject RankPointService RankPoints
 @inject BrowserStorageService Storage
 
 <PageTitle>@PageTitleText</PageTitle>
@@ -105,6 +106,18 @@ else
             </select>
         </div>
     </div>
+
+    @if (string.Equals(selectedTimelineVersion, "Sparkle Shower", StringComparison.OrdinalIgnoreCase))
+    {
+        <section class="rank-point-panel" aria-label="랭크 포인트">
+            <div>
+                <h2 class="rank-point-title">개전 랭크 포인트</h2>
+                <p class="rank-point-description">과제곡 ALL HARD: 100점</p>
+                <p class="rank-point-description">과제곡 ALL EX HARD ↑: 200점</p>
+            </div>
+            <strong class="rank-point-value">@RankPointText</strong>
+        </section>
+    }
 
     <div class="clear-type-chart" aria-label="클리어 타입 그래프">
         <div class="chart-bar-wrapper">
@@ -428,7 +441,7 @@ else
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private static readonly string[] ClearTypeLabels = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-    private static readonly int[] TableMaxWidthOptions = [0, 1200, 1400, 1600, 1800, 2000];
+    private static readonly int[] TableMaxWidthOptions = [0, 1000, 1200, 1400, 1600, 1800, 2000];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
     private static readonly string[] TimelineVersionOptions = [
         "Sparkle Shower",
@@ -460,7 +473,7 @@ else
     private bool isLoading = true;
     private string? errorMessage;
     private int columnCount = 6;
-    private int selectedTableMaxWidth = 1200;
+    private int selectedTableMaxWidth = 1000;
     private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
@@ -476,6 +489,8 @@ else
     private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
     private bool UseTopHeaderMode => useTopHeader;
+    private int CurrentRankCount => TierTableData.CurrentRankCount;
+    private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
 
     private IEnumerable<TypeGroup> GroupedRows => VisibleRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
@@ -509,6 +524,7 @@ else
         {
             await ApplySavedPreferencesAsync();
             await TierTableData.InitializeAsync(Http);
+            await RankPoints.InitializeAsync(Http);
             tierRows = TierTableData.Rows;
             errorMessage = TierTableData.ErrorMessage;
             await LoadUserScoreCacheAsync();
@@ -865,6 +881,22 @@ else
         }
 
         return counts;
+    }
+
+    private decimal GetRankPointTotal()
+    {
+        var cumulativePoints = VisibleRows.Sum(GetRankPoint);
+        if (CurrentRankCount <= 0)
+        {
+            return 0;
+        }
+
+        return cumulativePoints / CurrentRankCount / 12m;
+    }
+
+    private decimal GetRankPoint(TierTableTitleRow row)
+    {
+        return RankPoints.GetPoint(row.RankTier, GetClearType(row));
     }
 
     private static int GetTypeOrder(string typeName)
