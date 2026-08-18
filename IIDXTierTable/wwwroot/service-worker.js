@@ -1,4 +1,4 @@
-// In development, always fetch from the network and do not enable offline support.
-// This is because caching would make development more difficult (changes would not
-// be reflected on the first load after each change).
+// 개발 환경에서는 항상 네트워크에서 가져오며 오프라인 지원을 활성화하지 않습니다.
+// 캐시를 사용하면 개발이 불편해지기 때문입니다. 변경 사항이 적용된 후에도
+// 첫 번째 로드에서 변경 내용이 반영되지 않을 수 있습니다.
 self.addEventListener('fetch', () => { });
