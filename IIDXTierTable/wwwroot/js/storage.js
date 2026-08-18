@@ -5,6 +5,9 @@ window.iidxStorage = {
     get: function (key) {
         return localStorage.getItem(key);
     },
+    isMobile: function () {
+        return window.matchMedia('(max-width: 767px)').matches;
+    },
     remove: function (key) {
         localStorage.removeItem(key);
     }

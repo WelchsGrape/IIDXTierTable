@@ -4,6 +4,7 @@
 @inject TierTableDataService TierTableData
 @inject RankPointService RankPoints
 @inject BrowserStorageService Storage
+@inject IJSRuntime JS
 
 <PageTitle>@PageTitleText</PageTitle>
 
@@ -472,6 +473,7 @@ else
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
     private bool isLoading = true;
     private string? errorMessage;
+    private bool isMobile;
     private int columnCount = 6;
     private int selectedTableMaxWidth = 1000;
     private ViewMode selectedViewMode = ViewMode.ByTier;
@@ -518,10 +520,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        selectedHighlightThreshold = DefaultHighlightThreshold;
-
         try
         {
+            isMobile = await JS.InvokeAsync<bool>("iidxStorage.isMobile");
+            ApplyDeviceDefaults();
             await ApplySavedPreferencesAsync();
             await TierTableData.InitializeAsync(Http);
             await RankPoints.InitializeAsync(Http);
@@ -537,6 +539,27 @@ else
         {
             isLoading = false;
         }
+    }
+
+    private void ApplyDeviceDefaults()
+    {
+        if (isMobile)
+        {
+            selectedViewMode = ViewMode.ByType;
+            columnCount = 3;
+            selectedTableMaxWidth = 0;
+        }
+        else
+        {
+            selectedViewMode = ViewMode.ByTier;
+            columnCount = 6;
+            selectedTableMaxWidth = 1000;
+        }
+
+        selectedSongSortMode = SongSortMode.ByTitle;
+        selectedHighlightThreshold = DefaultHighlightThreshold;
+        useTopHeader = false;
+        showOptions = true;
     }
 
     private async Task ApplySavedPreferencesAsync()
