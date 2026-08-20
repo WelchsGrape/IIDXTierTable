@@ -341,8 +341,9 @@ Version,Title,MatchTitle,Difficulty,NormalType,NormalTier,HardType,HardTier,Rank
 21,ra'am,,ANOTHER,지력,B,개인차,B+,
 12,rage against usual,,ANOTHER,지력,C,개인차,A+,
 29,RAGE feat.H14 of LEONAIR,,ANOTHER,개인차,S+,개인차,S+,7
-33,RALLY '25,,ANOTHER,지력,D,지력,D,
 24,RAIN,,ANOTHER,지력,C,지력,D,
+33,Raison d'etre～交差する宿命～,,LEGGENDARIA,,,,,
+33,RALLY '25,,ANOTHER,지력,D,지력,D,
 25,Rampage,,ANOTHER,지력,D,지력,D,
 25,Raspberry Railgun,,ANOTHER,지력,E,지력,E,
 24,Rave Cannon,,ANOTHER,지력,D,지력,D,
@@ -519,6 +520,7 @@ Version,Title,MatchTitle,Difficulty,NormalType,NormalTier,HardType,HardTier,Rank
 29,2 Beasts Unchained,,ANOTHER,개인차,A,지력,A,
 30,24h Endurance Race,,ANOTHER,지력,B,개인차,B+,
 25,255,,ANOTHER,지력,A,개인차,A+,
+33,27th style,,LEGGENDARIA,,,,,
 16,3y3s,,ANOTHER,개인차,A,지력,S+,6
 30,[ ]DENTITY,,ANOTHER,지력,A+,지력,A+,
 23,紫陽花 -AZISAI-,,ANOTHER,지력,D,지력,D,
