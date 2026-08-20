@@ -7,10 +7,20 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'IIDXTierTable.Api/**'
+      - '.github/workflows/main_iidxtiertable.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-functions
+  cancel-in-progress: true
+
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './IIDXTierTable.Api'
   DOTNET_VERSION: '10.0.x' # set this to the dotnet version to use
 
 jobs:
@@ -19,25 +29,27 @@ jobs:
     
     steps:
       - name: 'Checkout GitHub Action'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: 'Resolve Project Dependencies Using Dotnet'
         shell: bash
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build --configuration Release --output ./output
-          popd
+          dotnet restore '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/IIDXTierTable.Api.csproj'
+          dotnet publish '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/IIDXTierTable.Api.csproj' \
+            --configuration Release \
+            --output '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output' \
+            --no-restore
       
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: 'IIDXTierTable'
-          slot-name: 'Production'
+          sku: 'flexconsumption'
           package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_985DE189E2E446449F5AD0655B3FB4AF }}
