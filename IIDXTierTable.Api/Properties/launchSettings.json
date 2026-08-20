@@ -2,7 +2,7 @@
   "profiles": {
     "IIDXTierTable.Api": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7200",
+      "commandLineArgs": "--port 7173",
       "launchBrowser": false
     }
   }
