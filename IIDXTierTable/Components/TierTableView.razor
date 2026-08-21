@@ -183,15 +183,8 @@ else
                                             <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
                                         </tr>
                                     }
-                                    
-                                        @if (UseTopHeaderMode)
-                                        {
-                                            <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
-                                                <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
-                                            </tr>
-                                        }
 
-                                        for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
+                                    for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
                                         {
                                             var row = songRows[rowIndex];
                                             var rowClass = rowIndex == 0 && !UseTopHeaderMode && hasTierBoundary ? "tier-boundary" : null;
