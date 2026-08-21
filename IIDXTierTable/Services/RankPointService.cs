@@ -15,7 +15,7 @@ public sealed class RankPointService
             return;
         }
 
-        var json = await http.GetStringAsync("RankPoints.json");
+        var json = await http.GetStringAsync("rank-points");
         var points = JsonSerializer.Deserialize<Dictionary<int, Dictionary<string, int>>>(json)
             ?? throw new InvalidOperationException("RankPoints.json을 읽을 수 없습니다.");
 

@@ -21,7 +21,7 @@ public sealed class TierTableDataService
 
         try
         {
-            var rows = await http.GetFromJsonAsync<List<TierTableTitleRow>>("SP12TierData.json");
+            var rows = await http.GetFromJsonAsync<List<TierTableTitleRow>>("tier-table");
             Rows = [.. (rows ?? []).Where(row => !string.IsNullOrWhiteSpace(row.Title))];
             CurrentRankCount = Rows.Count(row => string.Equals(row.RankTier, "1", StringComparison.Ordinal));
             ErrorMessage = null;
