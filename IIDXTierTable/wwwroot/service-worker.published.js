@@ -91,7 +91,18 @@ async function networkFirstApi(request) {
     try {
         const response = await fetch(request);
         if (response.ok) {
-            await cache.put(request, response.clone());
+            try {
+                await cache.put(request, response.clone());
+            } catch (cacheError) {
+                console.warn('Service worker: API 응답 캐시에 실패했습니다.', cacheError);
+            }
+
+            return response;
+        }
+
+        const cachedResponse = await cache.match(request);
+        if (cachedResponse && response.status >= 500) {
+            return cachedResponse;
         }
 
         return response;
