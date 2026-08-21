@@ -8,6 +8,7 @@ internal static class JsonFileResponse
 {
     public static async Task<IActionResult> CreateAsync(
         string fileName,
+        HttpRequest request,
         ILogger logger,
         string dataDescription)
     {
@@ -22,6 +23,7 @@ internal static class JsonFileResponse
         try
         {
             var json = await File.ReadAllTextAsync(path);
+            request.HttpContext.Response.Headers.CacheControl = "public, max-age=300";
             return new ContentResult
             {
                 Content = json,

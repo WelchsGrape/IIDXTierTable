@@ -38,6 +38,14 @@ async function onActivate(event) {
 }
 
 async function onFetch(event) {
+    const requestUrl = new URL(event.request.url);
+    const isApiRequest = event.request.method === 'GET'
+        && requestUrl.pathname.includes('/api/');
+
+    if (isApiRequest) {
+        return networkFirstApi(event.request);
+    }
+
     let cachedResponse = null;
     if (event.request.method === 'GET') {
         // 오프라인 리소스에 대한 요청이 아니라면 모든 탐색 요청에 대해 캐시된 index.html을 제공하려고 시도합니다.
@@ -70,6 +78,30 @@ async function onFetch(event) {
         // Response.error()는 브라우저 콘솔에 FetchEvent 네트워크 오류 경고를 발생시키므로,
         // 정상적인 HTTP 오류 응답으로 변환합니다.
         return new Response('네트워크에 연결할 수 없습니다.', {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+        });
+    }
+}
+
+async function networkFirstApi(request) {
+    const cache = await caches.open(cacheName);
+
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            await cache.put(request, response.clone());
+        }
+
+        return response;
+    } catch (error) {
+        const cachedResponse = await cache.match(request);
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+
+        return new Response('API에 연결할 수 없습니다.', {
             status: 503,
             statusText: 'Service Unavailable',
             headers: { 'Content-Type': 'text/plain; charset=utf-8' }

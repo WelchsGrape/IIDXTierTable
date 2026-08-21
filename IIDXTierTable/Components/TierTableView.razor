@@ -475,6 +475,9 @@ else
     ];
 
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
+    private IReadOnlyList<TierTableTitleRow> visibleRows = [];
+    private IReadOnlyList<TypeGroup> groupedRows = [];
+    private IReadOnlyList<TierTableTitleRow> undecidedRows = [];
     private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
     private bool isLoading = true;
     private string? errorMessage;
@@ -493,14 +496,21 @@ else
 
     private string ModeLabel => Mode == DifficultyMode.Hard ? "하드" : "노멀";
     private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
-    private IReadOnlyList<TierTableTitleRow> VisibleRows => tierRows.Where(IsVisibleForSelectedTimelineVersion).ToList();
+    private IReadOnlyList<TierTableTitleRow> VisibleRows => visibleRows;
     private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
     private bool UseTopHeaderMode => useTopHeader;
     private int CurrentRankCount => TierTableData.CurrentRankCount;
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
 
-    private IEnumerable<TypeGroup> GroupedRows => VisibleRows
+    private IEnumerable<TypeGroup> GroupedRows => groupedRows;
+    private IReadOnlyList<TierTableTitleRow> UndecidedRows => undecidedRows;
+
+    private void RebuildViewCaches()
+    {
+        visibleRows = [.. tierRows.Where(IsVisibleForSelectedTimelineVersion)];
+        undecidedRows = SortSongs(visibleRows.Where(IsUndecidedRow));
+        groupedRows = visibleRows
         .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
         .GroupBy(row => GetTypeName(row), StringComparer.OrdinalIgnoreCase)
         .OrderBy(group => GetTypeOrder(group.Key))
@@ -518,11 +528,9 @@ else
                     Songs = SortSongs(tier)
                 })
                 .ToList()
-        });
-
-    private IReadOnlyList<TierTableTitleRow> UndecidedRows => SortSongs(VisibleRows
-        .Where(IsUndecidedRow)
-        .ToList());
+        })
+        .ToList();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -534,6 +542,7 @@ else
             await TierTableData.InitializeAsync(Http);
             await RankPoints.InitializeAsync(Http);
             tierRows = TierTableData.Rows;
+            RebuildViewCaches();
             errorMessage = TierTableData.ErrorMessage;
             await LoadUserScoreCacheAsync();
         }
@@ -600,6 +609,7 @@ else
             ShowOptions = showOptions
         };
 
+        RebuildViewCaches();
         await Storage.SetItemAsync(PreferencesKey, preferences);
     }
 
@@ -746,6 +756,8 @@ else
                 clearTypeBySong[key] = difficulty.Value.ClearType;
             }
         }
+
+        RebuildViewCaches();
     }
 
     private string GetSongTooltip(TierTableTitleRow row)

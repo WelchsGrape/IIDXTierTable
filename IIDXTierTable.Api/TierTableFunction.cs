@@ -20,6 +20,7 @@ public sealed class TierTableFunction
     {
         return await JsonFileResponse.CreateAsync(
             "SP12TierData.json",
+            request,
             _logger,
             "서열표 데이터");
     }

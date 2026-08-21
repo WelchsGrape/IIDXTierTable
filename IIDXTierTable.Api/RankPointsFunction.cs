@@ -20,6 +20,7 @@ public sealed class RankPointsFunction
     {
         return await JsonFileResponse.CreateAsync(
             "RankPoints.json",
+            request,
             _logger,
             "랭크 포인트 데이터");
     }
