@@ -8,7 +8,12 @@
 
 <PageTitle>@PageTitleText</PageTitle>
 
-<h1>@PageTitleText</h1>
+<div class="tier-table-heading">
+    <h1>@PageTitleText</h1>
+    <p class="last-updated" aria-label="사용자 데이터 갱신 일자">
+        사용자 데이터 갱신 일자: @(scoreUpdatedAtUtc is null ? "없음" : scoreUpdatedAtUtc.Value.ToLocalTime().ToString("yyyy년 M월 d일 HH시 mm분"))
+    </p>
+</div>
 <p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
 
 @if (isLoading)
@@ -482,6 +487,7 @@ else
     private string selectedTimelineVersion = TimelineVersionOptions[0];
     private bool useTopHeader;
     private bool showOptions = true;
+    private DateTimeOffset? scoreUpdatedAtUtc;
 
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
 
@@ -727,9 +733,11 @@ else
         var envelope = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
         if (envelope is null)
         {
+            scoreUpdatedAtUtc = null;
             return;
         }
 
+        scoreUpdatedAtUtc = envelope.SavedAtUtc;
         foreach (var song in envelope.Songs)
         {
             foreach (var difficulty in song.Difficulties)

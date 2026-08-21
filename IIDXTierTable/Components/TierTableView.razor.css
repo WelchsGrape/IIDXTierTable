@@ -1,3 +1,34 @@
+.tier-table-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.tier-table-heading h1 {
+    margin-bottom: 0;
+}
+
+.last-updated {
+    flex: 0 0 auto;
+    margin: 0;
+    color: #64748b;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+    .tier-table-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .last-updated {
+        white-space: normal;
+    }
+}
+
 .matrix-controls {
     display: grid;
     gap: 0.75rem;
