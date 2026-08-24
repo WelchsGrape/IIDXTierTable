@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="IIDXTierTable.Api/IIDXTierTable.Api.csproj" Id="292efbbd-d868-46ae-805a-e8439fe557c4" />
   <Project Path="IIDXTierTable/IIDXTierTable.csproj" />
+  <Project Path="IIDXTierTable.Tests/IIDXTierTable.Tests.csproj" />
 </Solution>
