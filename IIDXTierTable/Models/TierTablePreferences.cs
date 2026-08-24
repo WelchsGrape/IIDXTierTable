@@ -2,8 +2,6 @@ namespace IIDXTierTable.Models;
 
 public sealed class TierTablePreferences
 {
-    public string ViewMode { get; set; } = string.Empty;
-
     public int ColumnCount { get; set; }
 
     public int TableMaxWidth { get; set; }

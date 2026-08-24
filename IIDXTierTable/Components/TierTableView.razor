@@ -49,14 +49,6 @@ else
         {
             <div class="matrix-controls-panel">
                 <div>
-                    <label for="viewMode" class="form-label mb-1">보기 방식</label>
-                    <select id="viewMode" class="form-select form-select-sm" @bind="selectedViewMode" @bind:after="SavePreferencesAsync">
-                        <option value="@ViewMode.ByTier">지력/개인차 통합</option>
-                        <option value="@ViewMode.ByType">지력/개인차 분리</option>
-                    </select>
-                </div>
-
-                <div>
                     <label for="columnCount" class="form-label mb-1">가로 칸 수</label>
                     <select id="columnCount" class="form-select form-select-sm" @bind="columnCount" @bind:after="SavePreferencesAsync">
                         @foreach (var option in ColumnCountOptions)
@@ -152,101 +144,87 @@ else
         </div>
     </div>
 
-    @if (selectedViewMode == ViewMode.ByType)
-    {
-        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
-            @foreach (var typeGroup in GroupedRows)
-            {
-                <section class="matrix-type-section">
-                    <h2 class="type-title">@typeGroup.TypeName</h2>
+    <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
+        @{
+            var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
+        }
+        @foreach (var tierName in TierOrder)
+        {
+            var ziryukRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "지력", tierName), columnCount);
+            var varianceRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "개인차", tierName), columnCount);
 
-                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
-                        <table class="matrix-table" aria-label="@($"{typeGroup.TypeName} {ModeLabel} 서열표")">
-                            <tbody>
-                                @foreach (var tierName in TierOrder)
+            if (ziryukRows.Count == 0 && varianceRows.Count == 0)
+            {
+                continue;
+            }
+
+            <section class="matrix-type-section">
+                <div class="matrix-scroll" style="@TableMaxWidthStyle">
+                    <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
+                        <tbody>
+                            @if (ziryukRows.Count == 0)
+                            {
+                                if (UseTopHeaderMode)
                                 {
-                                    if (ShouldSkipTierRow(typeGroup.TypeName, tierName))
-                                    {
-                                        continue;
-                                    }
-
-                                    var songs = GetSongsByTier(typeGroup, tierName);
-                                    var songRows = ChunkSongs(songs, columnCount);
-                                    var hasTierBoundary = IsTierBoundary(tierName);
-
-                                    if (songRows.Count == 0)
-                                    {
-                                        continue;
-                                    }
-
-                                    if (UseTopHeaderMode)
-                                    {
-                                        <tr class="@(hasTierBoundary ? "tier-boundary" : null)">
-                                            <th colspan="@columnCount" class="tier-header compact-header">@tierName</th>
-                                        </tr>
-                                    }
-
-                                    for (var rowIndex = 0; rowIndex < songRows.Count; rowIndex++)
-                                        {
-                                            var row = songRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && !UseTopHeaderMode && hasTierBoundary ? "tier-boundary" : null;
-                                            <tr class="@rowClass">
-                                                @if (!UseTopHeaderMode && rowIndex == 0)
-                                                {
-                                                    <th scope="row" class="tier-header" rowspan="@songRows.Count">@tierName</th>
-                                                }
-
-                                                @foreach (var song in row)
-                                                {
-                                                    <td class="song-td @GetSongCellClass(song)">
-                                                        <div class="song-cell" title="@GetSongTooltip(song)">
-                                                            <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                            <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
-                                                        </div>
-                                                    </td>
-                                                }
-
-                                                @for (var i = row.Count; i < columnCount; i++)
-                                                {
-                                                    <td class="pad-cell"></td>
-                                                }
-                                            </tr>
-                                        }
-                                    }
+                                    <tr>
+                                        <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
                                 }
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            }
-        </div>
-    }
-    else
-    {
-        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
-            @{
-                var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
-            }
-            @foreach (var tierName in TierOrder)
-            {
-                var ziryukRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "지력", tierName), columnCount);
-                var varianceRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "개인차", tierName), columnCount);
+                                else
+                                {
+                                    <tr>
+                                        <th scope="row" class="tier-header">지력 @tierName</th>
+                                        <td class="empty-cell" colspan="@columnCount">-</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                @if (UseTopHeaderMode)
+                                {
+                                    <tr>
+                                        <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                    </tr>
+                                }
 
-                if (ziryukRows.Count == 0 && varianceRows.Count == 0)
-                {
-                    continue;
-                }
+                                for (var rowIndex = 0; rowIndex < ziryukRows.Count; rowIndex++)
+                                {
+                                    var row = ziryukRows[rowIndex];
+                                    <tr>
+                                        @if (!UseTopHeaderMode && rowIndex == 0)
+                                        {
+                                            <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
+                                        }
 
-                <section class="matrix-type-section">
-                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
-                        <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
-                            <tbody>
-                                @if (ziryukRows.Count == 0)
+                                        @foreach (var song in row)
+                                        {
+                                            <td class="song-td @GetSongCellClass(song)">
+                                                <div class="song-cell" title="@GetSongTooltip(song)">
+                                                    <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                    <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                </div>
+                                            </td>
+                                        }
+
+                                        @for (var i = row.Count; i < columnCount; i++)
+                                        {
+                                            <td class="pad-cell"></td>
+                                        }
+                                    </tr>
+                                }
+                            }
+
+                            @if (!ShouldSkipTierRow("개인차", tierName))
+                            {
+                                if (varianceRows.Count == 0)
                                 {
                                     if (UseTopHeaderMode)
                                     {
                                         <tr>
-                                            <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                            <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
                                         </tr>
                                         <tr>
                                             <td class="empty-cell" colspan="@columnCount">-</td>
@@ -255,7 +233,7 @@ else
                                     else
                                     {
                                         <tr>
-                                            <th scope="row" class="tier-header">지력 @tierName</th>
+                                            <th scope="row" class="tier-header">개인차 @tierName</th>
                                             <td class="empty-cell" colspan="@columnCount">-</td>
                                         </tr>
                                     }
@@ -265,17 +243,18 @@ else
                                     @if (UseTopHeaderMode)
                                     {
                                         <tr>
-                                            <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
+                                            <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
                                         </tr>
                                     }
 
-                                    for (var rowIndex = 0; rowIndex < ziryukRows.Count; rowIndex++)
+                                    for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                     {
-                                        var row = ziryukRows[rowIndex];
-                                        <tr>
+                                        var row = varianceRows[rowIndex];
+                                        var rowClass = rowIndex == 0 && !UseTopHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                        <tr class="@rowClass">
                                             @if (!UseTopHeaderMode && rowIndex == 0)
                                             {
-                                                <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
+                                                <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
                                             }
 
                                             @foreach (var song in row)
@@ -295,72 +274,13 @@ else
                                         </tr>
                                     }
                                 }
-
-                                @if (!ShouldSkipTierRow("개인차", tierName))
-                                {
-                                    if (varianceRows.Count == 0)
-                                    {
-                                        if (UseTopHeaderMode)
-                                        {
-                                            <tr>
-                                                <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
-                                            </tr>
-                                            <tr>
-                                                <td class="empty-cell" colspan="@columnCount">-</td>
-                                            </tr>
-                                        }
-                                        else
-                                        {
-                                            <tr>
-                                                <th scope="row" class="tier-header">개인차 @tierName</th>
-                                                <td class="empty-cell" colspan="@columnCount">-</td>
-                                            </tr>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        @if (UseTopHeaderMode)
-                                        {
-                                            <tr>
-                                                <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
-                                            </tr>
-                                        }
-
-                                        for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
-                                        {
-                                            var row = varianceRows[rowIndex];
-                                            var rowClass = rowIndex == 0 && !UseTopHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
-                                            <tr class="@rowClass">
-                                                @if (!UseTopHeaderMode && rowIndex == 0)
-                                                {
-                                                    <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
-                                                }
-
-                                                @foreach (var song in row)
-                                                {
-                                                    <td class="song-td @GetSongCellClass(song)">
-                                                        <div class="song-cell" title="@GetSongTooltip(song)">
-                                                            <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                            <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
-                                                        </div>
-                                                    </td>
-                                                }
-
-                                                @for (var i = row.Count; i < columnCount; i++)
-                                                {
-                                                    <td class="pad-cell"></td>
-                                                }
-                                            </tr>
-                                        }
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-            }
-        </div>
-    }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </div>
 
     @if (UndecidedRows.Count > 0)
     {
@@ -470,7 +390,6 @@ else
 
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
     private IReadOnlyList<TierTableTitleRow> visibleRows = [];
-    private IReadOnlyList<TierTableTypeGroup> groupedRows = [];
     private IReadOnlyList<TierTableTitleRow> undecidedRows = [];
     private IReadOnlyDictionary<string, string> clearTypeBySong = new Dictionary<string, string>(StringComparer.Ordinal);
     private bool isLoading = true;
@@ -478,7 +397,6 @@ else
     private bool isMobile;
     private int columnCount = 6;
     private int selectedTableMaxWidth = 1000;
-    private ViewMode selectedViewMode = ViewMode.ByTier;
     private SongSortMode selectedSongSortMode = SongSortMode.ByTitle;
     private string selectedHighlightThreshold = string.Empty;
     private string selectedTimelineVersion = TimelineVersionOptions[0];
@@ -497,7 +415,6 @@ else
     private int CurrentRankCount => TierTableData.CurrentRankCount;
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
 
-    private IEnumerable<TierTableTypeGroup> GroupedRows => groupedRows;
     private IReadOnlyList<TierTableTitleRow> UndecidedRows => undecidedRows;
 
     private void RebuildViewCaches()
@@ -509,7 +426,6 @@ else
             selectedSongSortMode.ToString(),
             clearTypeBySong);
         visibleRows = view.VisibleRows;
-        groupedRows = view.GroupedRows;
         undecidedRows = view.UndecidedRows;
     }
 
@@ -541,13 +457,11 @@ else
     {
         if (isMobile)
         {
-            selectedViewMode = ViewMode.ByType;
             columnCount = 3;
             selectedTableMaxWidth = 0;
         }
         else
         {
-            selectedViewMode = ViewMode.ByTier;
             columnCount = 6;
             selectedTableMaxWidth = 1000;
         }
@@ -566,7 +480,6 @@ else
             return;
         }
 
-        selectedViewMode = ParseViewMode(preferences.ViewMode);
         columnCount = preferences.ColumnCount > 0 ? preferences.ColumnCount : columnCount;
         selectedSongSortMode = ParseSongSortMode(preferences.SongSortMode);
         selectedHighlightThreshold = string.IsNullOrWhiteSpace(preferences.HighlightThreshold)
@@ -581,7 +494,6 @@ else
     {
         var preferences = new TierTablePreferences
         {
-            ViewMode = selectedViewMode.ToString(),
             ColumnCount = columnCount,
             TableMaxWidth = selectedTableMaxWidth,
             SongSortMode = selectedSongSortMode.ToString(),
@@ -600,21 +512,9 @@ else
         await SavePreferencesAsync();
     }
 
-    private static ViewMode ParseViewMode(string? value)
-    {
-        return Enum.TryParse<ViewMode>(value, true, out var mode) ? mode : ViewMode.ByTier;
-    }
-
     private static SongSortMode ParseSongSortMode(string? value)
     {
         return Enum.TryParse<SongSortMode>(value, true, out var mode) ? mode : SongSortMode.ByTitle;
-    }
-
-    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(TierTableTypeGroup typeGroup, string tierName)
-    {
-        return typeGroup.Tiers
-            .FirstOrDefault(t => string.Equals(t.TierName, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
-            ?? [];
     }
 
     private Dictionary<string, Dictionary<string, IReadOnlyList<TierTableTitleRow>>> BuildSongsByTypeAndTierLookup()
@@ -812,12 +712,6 @@ else
         public required string TierName { get; init; }
 
         public required IReadOnlyList<TierTableTitleRow> Songs { get; init; }
-    }
-
-    private enum ViewMode
-    {
-        ByType,
-        ByTier
     }
 
     private enum SongSortMode
