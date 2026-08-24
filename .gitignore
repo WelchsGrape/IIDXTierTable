@@ -238,6 +238,12 @@ PublishScripts/
 
 # Microsoft Azure Build Output
 csx/
+
+# Azurite local storage
+__azurite_db_*.json
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
 *.build.csdef
 
 # Microsoft Azure Emulator
