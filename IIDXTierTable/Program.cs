@@ -18,6 +18,8 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
 builder.Services.AddScoped<BrowserStorageService>();
 builder.Services.AddScoped<IidxCsvParser>();
+builder.Services.AddScoped<SongMatchService>();
+builder.Services.AddScoped<TierTablePresentationService>();
 builder.Services.AddScoped<TierTableDataService>();
 builder.Services.AddScoped<RankPointService>();
 

@@ -3,6 +3,8 @@
 @inject HttpClient Http
 @inject TierTableDataService TierTableData
 @inject RankPointService RankPoints
+@inject SongMatchService SongMatcher
+@inject TierTablePresentationService Presentation
 @inject BrowserStorageService Storage
 @inject IJSRuntime JS
 
@@ -438,7 +440,6 @@ else
     public DifficultyMode Mode { get; set; }
 
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
-    private static readonly string[] ClearTypeLabels = ["NO PLAY", "FAILED", "ASSIST CLEAR", "EASY CLEAR", "CLEAR", "HARD CLEAR", "EX HARD CLEAR", "FULLCOMBO CLEAR"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly int[] TableMaxWidthOptions = [0, 1000, 1200, 1400, 1600, 1800, 2000];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
@@ -469,9 +470,9 @@ else
 
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
     private IReadOnlyList<TierTableTitleRow> visibleRows = [];
-    private IReadOnlyList<TypeGroup> groupedRows = [];
+    private IReadOnlyList<TierTableTypeGroup> groupedRows = [];
     private IReadOnlyList<TierTableTitleRow> undecidedRows = [];
-    private readonly Dictionary<string, string> clearTypeBySong = new(StringComparer.Ordinal);
+    private IReadOnlyDictionary<string, string> clearTypeBySong = new Dictionary<string, string>(StringComparer.Ordinal);
     private bool isLoading = true;
     private string? errorMessage;
     private bool isMobile;
@@ -496,33 +497,20 @@ else
     private int CurrentRankCount => TierTableData.CurrentRankCount;
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
 
-    private IEnumerable<TypeGroup> GroupedRows => groupedRows;
+    private IEnumerable<TierTableTypeGroup> GroupedRows => groupedRows;
     private IReadOnlyList<TierTableTitleRow> UndecidedRows => undecidedRows;
 
     private void RebuildViewCaches()
     {
-        visibleRows = [.. tierRows.Where(IsVisibleForSelectedTimelineVersion)];
-        undecidedRows = SortSongs(visibleRows.Where(IsUndecidedRow));
-        groupedRows = visibleRows
-        .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
-        .GroupBy(row => GetTypeName(row), StringComparer.OrdinalIgnoreCase)
-        .OrderBy(group => GetTypeOrder(group.Key))
-        .ThenBy(group => group.Key)
-        .Select(group => new TypeGroup
-        {
-            TypeName = group.Key,
-            Tiers = group
-                .GroupBy(row => GetTierName(row), StringComparer.OrdinalIgnoreCase)
-                .OrderBy(tier => GetTierOrder(tier.Key))
-                .ThenBy(tier => tier.Key)
-                .Select(tier => new TierGroup
-                {
-                    TierName = tier.Key,
-                    Songs = SortSongs(tier)
-                })
-                .ToList()
-        })
-        .ToList();
+        var view = Presentation.BuildView(
+            tierRows,
+            Mode,
+            selectedTimelineVersion,
+            selectedSongSortMode.ToString(),
+            clearTypeBySong);
+        visibleRows = view.VisibleRows;
+        groupedRows = view.GroupedRows;
+        undecidedRows = view.UndecidedRows;
     }
 
     protected override async Task OnInitializedAsync()
@@ -622,7 +610,7 @@ else
         return Enum.TryParse<SongSortMode>(value, true, out var mode) ? mode : SongSortMode.ByTitle;
     }
 
-    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(TypeGroup typeGroup, string tierName)
+    private IReadOnlyList<TierTableTitleRow> GetSongsByTier(TierTableTypeGroup typeGroup, string tierName)
     {
         return typeGroup.Tiers
             .FirstOrDefault(t => string.Equals(t.TierName, tierName, StringComparison.OrdinalIgnoreCase))?.Songs
@@ -661,12 +649,12 @@ else
 
     private string GetTypeName(TierTableTitleRow row)
     {
-        return Mode == DifficultyMode.Hard ? row.HardType : row.NormalType;
+        return Presentation.GetTypeName(row, Mode);
     }
 
     private string GetTierName(TierTableTitleRow row)
     {
-        return Mode == DifficultyMode.Hard ? row.HardTier : row.NormalTier;
+        return Presentation.GetTierName(row, Mode);
     }
 
     private bool IsUndecidedRow(TierTableTitleRow row)
@@ -691,37 +679,7 @@ else
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
     {
-        return selectedSongSortMode switch
-        {
-            SongSortMode.ByLampAscending => songs
-                .OrderBy(row => GetClearTypeOrder(GetClearType(row)))
-                .ThenBy(row => GetTitleSortCategory(row.Title))
-                .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(row => row.Difficulty)
-                .ToList(),
-            SongSortMode.ByLampDescending => songs
-                .OrderByDescending(row => GetClearTypeOrder(GetClearType(row)))
-                .ThenBy(row => GetTitleSortCategory(row.Title))
-                .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(row => row.Difficulty)
-                .ToList(),
-            _ => songs
-                .OrderBy(row => GetTitleSortCategory(row.Title))
-                .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase)
-                .ThenBy(row => row.Difficulty)
-                .ToList()
-        };
-    }
-
-    private static int GetTitleSortCategory(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return 1;
-        }
-
-        var firstChar = title.TrimStart()[0];
-        return (firstChar is >= 'A' and <= 'Z') || (firstChar is >= 'a' and <= 'z') ? 0 : 1;
+        return Presentation.SortSongs(songs, selectedSongSortMode.ToString(), clearTypeBySong);
     }
 
     private static string GetShortTitle(string title)
@@ -731,24 +689,16 @@ else
 
     private async Task LoadUserScoreCacheAsync()
     {
-        clearTypeBySong.Clear();
-
         var envelope = await Storage.GetItemAsync<IidxScoreEnvelope>(IidxStorageKeys.Scores);
         if (envelope is null)
         {
+            clearTypeBySong = new Dictionary<string, string>(StringComparer.Ordinal);
             scoreUpdatedAtUtc = null;
             return;
         }
 
         scoreUpdatedAtUtc = envelope.SavedAtUtc;
-        foreach (var song in envelope.Songs)
-        {
-            foreach (var difficulty in song.Difficulties)
-            {
-                var key = BuildSongKey(song.Title, difficulty.Key);
-                clearTypeBySong[key] = difficulty.Value.ClearType;
-            }
-        }
+        clearTypeBySong = SongMatcher.BuildClearTypeLookup(envelope);
 
         RebuildViewCaches();
     }
@@ -789,7 +739,7 @@ else
             return "song-td-no-play";
         }
 
-        return GetClearTypeOrder(clearType) >= GetClearTypeOrder(selectedHighlightThreshold)
+        return TierTablePresentationService.GetClearTypeOrder(clearType) >= TierTablePresentationService.GetClearTypeOrder(selectedHighlightThreshold)
             ? "song-td-high-clear"
             : "song-td-low-clear";
     }
@@ -810,114 +760,16 @@ else
         };
     }
 
-    private static ClearTypeLevel GetClearTypeOrder(string clearType)
-    {
-        return clearType switch
-        {
-            "NO PLAY" => ClearTypeLevel.NoPlay,
-            "FAILED" => ClearTypeLevel.Failed,
-            "ASSIST CLEAR" => ClearTypeLevel.AssistClear,
-            "EASY CLEAR" => ClearTypeLevel.EasyClear,
-            "CLEAR" => ClearTypeLevel.Clear,
-            "HARD CLEAR" => ClearTypeLevel.HardClear,
-            "EX HARD CLEAR" => ClearTypeLevel.ExHardClear,
-            "FULLCOMBO CLEAR" => ClearTypeLevel.FullcomboClear,
-            _ => ClearTypeLevel.Unknown
-        };
-    }
-
-    private enum ClearTypeLevel
-    {
-        Unknown = -1,
-        NoPlay = 0,
-        Failed = 1,
-        AssistClear = 2,
-        EasyClear = 3,
-        Clear = 4,
-        HardClear = 5,
-        ExHardClear = 6,
-        FullcomboClear = 7
-    }
-
     private string GetClearType(TierTableTitleRow row)
     {
-        var matchTitle = string.IsNullOrWhiteSpace(row.MatchTitle) ? row.Title : row.MatchTitle;
-        var key = BuildSongKey(matchTitle, row.Difficulty);
-        if (clearTypeBySong.TryGetValue(key, out var clearType) && !string.IsNullOrWhiteSpace(clearType))
-        {
-            return clearType.Trim();
-        }
-
-        return "NO PLAY";
+        return SongMatcher.GetClearType(row, clearTypeBySong);
     }
 
-    private bool IsVisibleForSelectedTimelineVersion(TierTableTitleRow row)
-    {
-        if (string.IsNullOrWhiteSpace(selectedTimelineVersion) || string.Equals(selectedTimelineVersion, "All", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
+    private List<List<TierTableTitleRow>> ChunkSongs(IReadOnlyList<TierTableTitleRow> songs, int chunkSize)
+        => Presentation.ChunkSongs(songs, chunkSize).ToList();
 
-        if (string.IsNullOrWhiteSpace(row.Version))
-        {
-            return true;
-        }
-
-        var selectedOrder = IidxVersionOrder.Resolve(selectedTimelineVersion);
-        var rowOrder = IidxVersionOrder.Resolve(row.Version);
-
-        return rowOrder <= selectedOrder;
-    }
-
-    private static string BuildSongKey(string title, string difficulty)
-    {
-        return string.Concat(title.Trim(), "\u001f", difficulty.Trim());
-    }
-
-    private static List<List<TierTableTitleRow>> ChunkSongs(IReadOnlyList<TierTableTitleRow> songs, int chunkSize)
-    {
-        var chunks = new List<List<TierTableTitleRow>>();
-
-        if (chunkSize <= 0 || songs.Count == 0)
-        {
-            return chunks;
-        }
-
-        for (var i = 0; i < songs.Count; i += chunkSize)
-        {
-            var size = Math.Min(chunkSize, songs.Count - i);
-            var chunk = new List<TierTableTitleRow>(size);
-
-            for (var j = i; j < i + size; j++)
-            {
-                chunk.Add(songs[j]);
-            }
-
-            chunks.Add(chunk);
-        }
-
-        return chunks;
-    }
-
-    private IReadOnlyList<ClearTypeChartSegment> GetClearTypeChartSegments()
-    {
-        var counts = ClearTypeLabels
-            .Select(clearType => new ClearTypeChartSegment(
-                clearType,
-                VisibleRows.Count(row => string.Equals(GetClearType(row), clearType, StringComparison.OrdinalIgnoreCase)),
-                0))
-            .ToList();
-
-        var total = counts.Sum(item => item.Count);
-        if (total > 0)
-        {
-            counts = counts
-                .Select(item => item with { Percentage = item.Count * 100.0 / total })
-                .ToList();
-        }
-
-        return counts;
-    }
+    private IReadOnlyList<TierTableChartSegment> GetClearTypeChartSegments()
+        => Presentation.BuildChart(VisibleRows, clearTypeBySong);
 
     private decimal GetRankPointTotal()
     {
@@ -945,18 +797,8 @@ else
         };
     }
 
-    private static int GetTierOrder(string tierName)
-    {
-        var index = Array.IndexOf(TierOrder, tierName);
-        return index >= 0 ? index : int.MaxValue;
-    }
-
     private static bool IsTierBoundary(string tierName)
-    {
-        return GetTierOrder(tierName) > 0;
-    }
-
-    private sealed record ClearTypeChartSegment(string ClearType, int Count, double Percentage);
+        => TierTablePresentationService.IsTierBoundary(tierName);
 
     private sealed class TypeGroup
     {
