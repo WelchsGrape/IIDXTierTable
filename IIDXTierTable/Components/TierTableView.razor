@@ -150,10 +150,10 @@ else
         }
         @foreach (var tierName in TierOrder)
         {
-            var ziryukRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "지력", tierName), columnCount);
+            var standardRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "지력", tierName), columnCount);
             var varianceRows = ChunkSongs(GetSongsFromLookup(songsByTypeAndTier, "개인차", tierName), columnCount);
 
-            if (ziryukRows.Count == 0 && varianceRows.Count == 0)
+            if (standardRows.Count == 0 && varianceRows.Count == 0)
             {
                 continue;
             }
@@ -162,7 +162,7 @@ else
                 <div class="matrix-scroll" style="@TableMaxWidthStyle">
                     <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
                         <tbody>
-                            @if (ziryukRows.Count == 0)
+                            @if (standardRows.Count == 0)
                             {
                                 if (UseTopHeaderMode)
                                 {
@@ -190,13 +190,13 @@ else
                                     </tr>
                                 }
 
-                                for (var rowIndex = 0; rowIndex < ziryukRows.Count; rowIndex++)
+                                for (var rowIndex = 0; rowIndex < standardRows.Count; rowIndex++)
                                 {
-                                    var row = ziryukRows[rowIndex];
+                                    var row = standardRows[rowIndex];
                                     <tr>
                                         @if (!UseTopHeaderMode && rowIndex == 0)
                                         {
-                                            <th scope="row" class="tier-header" rowspan="@ziryukRows.Count">지력 @tierName</th>
+                                            <th scope="row" class="tier-header" rowspan="@standardRows.Count">지력 @tierName</th>
                                         }
 
                                         @foreach (var song in row)
@@ -250,7 +250,7 @@ else
                                     for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
                                     {
                                         var row = varianceRows[rowIndex];
-                                        var rowClass = rowIndex == 0 && !UseTopHeaderMode && ziryukRows.Count > 0 ? "tier-boundary" : null;
+                                        var rowClass = rowIndex == 0 && !UseTopHeaderMode && standardRows.Count > 0 ? "tier-boundary" : null;
                                         <tr class="@rowClass">
                                             @if (!UseTopHeaderMode && rowIndex == 0)
                                             {
@@ -293,59 +293,37 @@ else
                                 var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
                             }
 
-                            @if (undecidedRows.Count == 0)
+                            @if (UseTopHeaderMode)
                             {
-                                if (UseTopHeaderMode)
-                                {
-                                    <tr>
-                                        <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
-                                    </tr>
-                                    <tr>
-                                        <td class="empty-cell" colspan="@columnCount">-</td>
-                                    </tr>
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <th scope="row" class="tier-header">미결정</th>
-                                        <td class="empty-cell" colspan="@columnCount">-</td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
+                                </tr>
                             }
-                            else
+
+                            @for (var rowIndex = 0; rowIndex < undecidedRows.Count; rowIndex++)
                             {
-                                if (UseTopHeaderMode)
-                                {
-                                    <tr>
-                                        <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
-                                    </tr>
-                                }
+                                var row = undecidedRows[rowIndex];
+                                <tr>
+                                    @if (!UseTopHeaderMode && rowIndex == 0)
+                                    {
+                                        <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
+                                    }
 
-                                for (var rowIndex = 0; rowIndex < undecidedRows.Count; rowIndex++)
-                                {
-                                    var row = undecidedRows[rowIndex];
-                                    <tr>
-                                        @if (!UseTopHeaderMode && rowIndex == 0)
-                                        {
-                                            <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
-                                        }
+                                    @foreach (var song in row)
+                                    {
+                                        <td class="song-td @GetSongCellClass(song)">
+                                            <div class="song-cell" title="@GetSongTooltip(song)">
+                                                <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
+                                                <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                            </div>
+                                        </td>
+                                    }
 
-                                        @foreach (var song in row)
-                                        {
-                                            <td class="song-td @GetSongCellClass(song)">
-                                                <div class="song-cell" title="@GetSongTooltip(song)">
-                                                    <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                    <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
-                                                </div>
-                                            </td>
-                                        }
-
-                                        @for (var i = row.Count; i < columnCount; i++)
-                                        {
-                                            <td class="pad-cell"></td>
-                                        }
-                                    </tr>
-                                }
+                                    @for (var i = row.Count; i < columnCount; i++)
+                                    {
+                                        <td class="pad-cell"></td>
+                                    }
+                                </tr>
                             }
                         </tbody>
                     </table>
