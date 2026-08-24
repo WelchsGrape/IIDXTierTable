@@ -7,13 +7,48 @@
 .import-card {
     border: 1px solid #d9d9d9;
     border-radius: 12px;
-    padding: 1rem;
     background: #fff;
+    overflow: hidden;
+}
+
+.import-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 0;
+    padding: 1rem;
+    background: transparent;
+    color: inherit;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: left;
+}
+
+.import-card-header:not(:disabled) {
+    cursor: pointer;
+}
+
+.import-card-header:hover:not(:disabled),
+.import-card-header:focus-visible {
+    background: #f6f8fa;
+}
+
+.import-card-body {
+    padding: 0 1rem 1rem;
 }
 
 .import-card h2 {
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
+}
+
+.import-status {
+    max-width: 42rem;
+}
+
+.import-progress {
+    height: 0.65rem;
 }
 
 .import-textarea {
@@ -28,6 +63,3 @@
     font-size: 0.9rem;
 }
 
-.import-status {
-    max-width: 42rem;
-}
