@@ -1,4 +1,5 @@
 @page "/import"
+@using System.Text
 @using IIDXTierTable.Models
 @using IIDXTierTable.Services
 @inject IidxCsvParser Parser
@@ -19,20 +20,15 @@
     </p>
     <ol class="mb-0">
         <li>위 링크에서 페이지를 열고 로그인합니다.</li>
-        <li>표시된 점수와 플레이 기록 데이터를 확인합니다.</li>
         <li>CSV로 저장하거나 텍스트 형태로 복사합니다.</li>
-        <li>이 페이지의 업로드 또는 붙여넣기 영역에 넣고 저장합니다.</li>
+        <li>CSV를 업로드하거나 텍스트를 붙여넣고 저장 버튼을 클릭합니다.</li>
     </ol>
 </div>
 
 <div class="import-layout">
     <section class="import-card">
-        <h2>파일 업로드</h2>
+        <h2>CSV 파일 업로드</h2>
         <InputFile OnChange="OnFileSelected" accept=".csv,text/csv" class="form-control" disabled="@isProcessing" />
-        @if (!string.IsNullOrWhiteSpace(fileStatus))
-        {
-            <p class="hint">@fileStatus</p>
-        }
     </section>
 
     <section class="import-card">
@@ -70,53 +66,25 @@
 }
 
 @code {
-    private const long MaxUploadSizeBytes = 20 * 1024 * 1024;
+    private const long MaxUploadSizeBytes = 1 * 1024 * 1024;
 
     private string csvText = string.Empty;
-    private string fileStatus = string.Empty;
+    private IBrowserFile? selectedFile;
     private string statusMessage = string.Empty;
     private string progressMessage = string.Empty;
     private bool isSuccess;
     private bool isProcessing;
     private List<string> errors = [];
 
-    private async Task OnFileSelected(InputFileChangeEventArgs args)
+    private Task OnFileSelected(InputFileChangeEventArgs args)
     {
         statusMessage = string.Empty;
         isSuccess = false;
         errors.Clear();
 
-        var file = args.File;
-
-        if (!IsSupportedCsvFile(file, out var validationError))
-        {
-            csvText = string.Empty;
-            fileStatus = string.Empty;
-            statusMessage = validationError;
-            return;
-        }
-
-        try
-        {
-            await using var stream = file.OpenReadStream(maxAllowedSize: MaxUploadSizeBytes);
-            using var reader = new StreamReader(stream);
-            csvText = await reader.ReadToEndAsync();
-
-            fileStatus = $"{file.Name} 로드 완료! 저장 버튼을 눌러 진행하세요.";
-        }
-        catch (IOException)
-        {
-            csvText = string.Empty;
-            fileStatus = string.Empty;
-            statusMessage = $"파일을 읽지 못했습니다. 업로드 가능한 최대 크기는 {MaxUploadSizeBytes / (1024 * 1024)}MB입니다.";
-        }
-        catch (Exception ex)
-        {
-            csvText = string.Empty;
-            fileStatus = string.Empty;
-            statusMessage = "파일 업로드 처리 중 오류가 발생했습니다.";
-            errors.Add(ex.Message);
-        }
+        selectedFile = args.File;
+        csvText = string.Empty;
+        return Task.CompletedTask;
     }
 
     private async Task ParseAndSaveAsync()
@@ -124,21 +92,53 @@
         errors.Clear();
         statusMessage = string.Empty;
         isSuccess = false;
-
-        if (string.IsNullOrWhiteSpace(csvText))
-        {
-            statusMessage = "저장할 CSV 내용이 없습니다. 파일 업로드 또는 붙여넣기를 먼저 진행해 주세요.";
-            return;
-        }
-
         isProcessing = true;
-        progressMessage = "CSV를 파싱하는 중입니다...";
-
         await Task.Yield();
 
         try
         {
-            var result = Parser.Parse(csvText);
+            string content;
+
+            if (selectedFile is not null)
+            {
+                if (!IsSupportedCsvFile(selectedFile, out var validationError))
+                {
+                    statusMessage = validationError;
+                    return;
+                }
+
+                if (selectedFile.Size > MaxUploadSizeBytes)
+                {
+                    statusMessage = $"파일이 너무 큽니다. 업로드 가능한 최대 크기는 {MaxUploadSizeBytes / (1024 * 1024)}MB입니다.";
+                    return;
+                }
+
+                progressMessage = "CSV 파일을 읽는 중입니다...";
+
+                await using var stream = selectedFile.OpenReadStream(maxAllowedSize: MaxUploadSizeBytes);
+                using var reader = new StreamReader(stream);
+                content = await reader.ReadToEndAsync();
+            }
+            else
+            {
+                content = csvText;
+            }
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                statusMessage = "저장할 CSV 내용이 없습니다. 파일 업로드 또는 붙여넣기를 먼저 진행해 주세요.";
+                return;
+            }
+
+            progressMessage = "CSV를 파싱하는 중입니다...";
+
+            if (Encoding.UTF8.GetByteCount(content) > MaxUploadSizeBytes)
+            {
+                statusMessage = $"CSV 내용이 너무 큽니다. 최대 크기는 {FormatFileSize(MaxUploadSizeBytes)}입니다.";
+                return;
+            }
+
+            var result = Parser.Parse(content);
             if (!result.IsSuccess || result.Envelope is null)
             {
                 errors = [.. result.Errors];
@@ -147,10 +147,10 @@
             }
 
             progressMessage = "브라우저 저장소에 데이터를 저장하는 중입니다...";
-            await Storage.SetItemAsync(IidxStorageKeys.Scores, result.Envelope);
+            var jsonSizeBytes = await Storage.SetItemAsync(IidxStorageKeys.Scores, result.Envelope);
 
             isSuccess = true;
-            statusMessage = $"저장 완료: {result.Envelope.Songs.Count:N0}곡이 기기에 저장되었습니다.";
+            statusMessage = $"저장 완료: {result.Envelope.Songs.Count:N0}곡이 기기에 저장되었습니다. JSON 데이터 크기: {FormatFileSize(jsonSizeBytes)}";
         }
         catch (JSException ex)
         {
@@ -185,5 +185,15 @@
 
         errorMessage = "CSV 파일만 업로드할 수 있습니다. 파일 확장자(.csv) 또는 형식을 확인해 주세요.";
         return false;
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        const double bytesPerKilobyte = 1024;
+        const double bytesPerMegabyte = bytesPerKilobyte * 1024;
+
+        return bytes >= bytesPerMegabyte
+            ? $"{bytes / bytesPerMegabyte:0.##}MB"
+            : $"{bytes / bytesPerKilobyte:0.##}KB";
     }
 }

@@ -243,8 +243,8 @@
     },
     {
         "Version":  "28",
-        "Title":  "Anisakis -somatic mutation type \"Forza\"-",
-        "MatchTitle":  "Anisakis -somatic mutation typeForza-",
+        "Title":  "Anisakis -somatic mutation type\"Forza\"-",
+        "MatchTitle":  "",
         "Difficulty":  "LEGGENDARIA",
         "NormalType":  "지력",
         "NormalTier":  "A+",
@@ -2752,7 +2752,7 @@
     {
         "Version":  "25",
         "Title":  "Life Is A Game ft.DD\"ナカタ\"Metal",
-        "MatchTitle":  "Life Is A Game ft.DDナカタMetal",
+        "MatchTitle":  "",
         "Difficulty":  "ANOTHER",
         "NormalType":  "지력",
         "NormalTier":  "A",
@@ -6404,7 +6404,7 @@
     {
         "Version":  "31",
         "Title":  "灼熱Beach Side Bunny (かめりあ\u0027s \"Summertime D\u0027n\u0027B\" Remix)",
-        "MatchTitle":  "灼熱Beach Side Bunny (かめりあ\u0027s Summertime D\u0027n\u0027B Remix)",
+        "MatchTitle":  "",
         "Difficulty":  "ANOTHER",
         "NormalType":  "개인차",
         "NormalTier":  "B+",
@@ -7009,7 +7009,7 @@
     {
         "Version":  "29",
         "Title":  "ピアノ独奏無言歌 \"灰燼\"",
-        "MatchTitle":  "ピアノ独奏無言歌 灰燼",
+        "MatchTitle":  "",
         "Difficulty":  "ANOTHER",
         "NormalType":  "개인차",
         "NormalTier":  "A+",

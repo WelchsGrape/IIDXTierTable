@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Microsoft.JSInterop;
 
@@ -25,11 +26,12 @@ public sealed class BrowserStorageService(IJSRuntime jsRuntime)
         return options;
     }
 
-    public async Task SetItemAsync<T>(string key, T value)
+    public async Task<long> SetItemAsync<T>(string key, T value)
     {
         var payload = JsonSerializer.Serialize(value, _jsonOptions);
         await jsRuntime.InvokeVoidAsync("iidxStorage.set", key, payload);
         _cache[key] = new CacheEntry(payload, value);
+        return Encoding.UTF8.GetByteCount(payload);
     }
 
     public async Task<T?> GetItemAsync<T>(string key)

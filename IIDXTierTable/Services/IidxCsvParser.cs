@@ -132,7 +132,7 @@ public sealed class IidxCsvParser
                 Score = ParseInt(cells[startIndex + 1], lineNo, $"{difficulty} スコア", errors),
                 PGreat = ParseInt(cells[startIndex + 2], lineNo, $"{difficulty} PGreat", errors),
                 Great = ParseInt(cells[startIndex + 3], lineNo, $"{difficulty} Great", errors),
-                MissCount = ParseMissCount(cells[startIndex + 4]),
+                MissCount = cells[startIndex + 4].Trim(),
                 ClearType = cells[startIndex + 5].Trim(),
                 DjLevel = cells[startIndex + 6].Trim()
             };
@@ -159,12 +159,6 @@ public sealed class IidxCsvParser
         return 0;
     }
 
-    private static string ParseMissCount(string value)
-    {
-        var trimmed = value.Trim();
-        return string.IsNullOrWhiteSpace(trimmed) ? "---" : trimmed;
-    }
-
     private static DateTime? ParseDateTime(string value)
     {
         var trimmed = value.Trim();
@@ -178,40 +172,8 @@ public sealed class IidxCsvParser
 
     private static List<string> ParseCsvLine(string line)
     {
-        var values = new List<string>();
-        var current = new System.Text.StringBuilder();
-        var inQuotes = false;
-
-        for (var i = 0; i < line.Length; i++)
-        {
-            var ch = line[i];
-
-            if (ch == '"')
-            {
-                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
-                {
-                    current.Append('"');
-                    i++;
-                }
-                else
-                {
-                    inQuotes = !inQuotes;
-                }
-
-                continue;
-            }
-
-            if (ch == ',' && !inQuotes)
-            {
-                values.Add(current.ToString());
-                current.Clear();
-                continue;
-            }
-
-            current.Append(ch);
-        }
-
-        values.Add(current.ToString());
-        return values;
+        // 이 애플리케이션에서 사용하는 CSV는 필드 내부의 쉼표나 줄바꿈을 지원하지 않으며,
+        // 필드 내부의 큰따옴표는 CSV 이스케이프 문자가 아닌 실제 데이터로 취급합니다.
+        return [.. line.Split(',', StringSplitOptions.None)];
     }
 }
