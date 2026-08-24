@@ -4,7 +4,6 @@ namespace IIDXTierTable.Services;
 
 public sealed class TierTablePresentationService
 {
-    private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private readonly SongMatchService songMatcher;
 
     public TierTablePresentationService(SongMatchService songMatcher)
@@ -26,25 +25,7 @@ public sealed class TierTablePresentationService
             visibleRows.Where(row => IsUndecidedRow(row, mode)),
             songSortMode,
             clearTypeBySong);
-        var groupedRows = visibleRows
-            .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row, mode))
-                && !string.IsNullOrWhiteSpace(GetTierName(row, mode)))
-            .GroupBy(row => GetTypeName(row, mode), StringComparer.OrdinalIgnoreCase)
-            .OrderBy(group => GetTypeOrder(group.Key))
-            .ThenBy(group => group.Key)
-            .Select(group => new TierTableTypeGroup(
-                group.Key,
-                group
-                    .GroupBy(row => GetTierName(row, mode), StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(tier => GetTierOrder(tier.Key))
-                    .ThenBy(tier => tier.Key)
-                    .Select(tier => new TierTableTierGroup(
-                        tier.Key,
-                        SortSongs(tier, songSortMode, clearTypeBySong)))
-                    .ToList()))
-            .ToList();
-
-        return new TierTableViewData(visibleRows, groupedRows, undecidedRows);
+        return new TierTableViewData(visibleRows, undecidedRows);
     }
 
     public IReadOnlyList<TierTableTitleRow> SortSongs(
@@ -141,14 +122,6 @@ public sealed class TierTablePresentationService
         _ => -1
     };
 
-    public static int GetTierOrder(string tierName)
-    {
-        var index = Array.IndexOf(TierOrder, tierName);
-        return index >= 0 ? index : int.MaxValue;
-    }
-
-    public static bool IsTierBoundary(string tierName) => GetTierOrder(tierName) > 0;
-
     private static bool IsVisibleForSelectedTimelineVersion(TierTableTitleRow row, string selectedTimelineVersion)
     {
         if (string.IsNullOrWhiteSpace(selectedTimelineVersion)
@@ -171,13 +144,6 @@ public sealed class TierTablePresentationService
             || string.Equals(tierName, "미결정", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static int GetTypeOrder(string typeName) => typeName switch
-    {
-        "지력" => 0,
-        "개인차" => 1,
-        _ => 2
-    };
-
     private static int GetTitleSortCategory(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
@@ -192,15 +158,6 @@ public sealed class TierTablePresentationService
 
 public sealed record TierTableViewData(
     IReadOnlyList<TierTableTitleRow> VisibleRows,
-    IReadOnlyList<TierTableTypeGroup> GroupedRows,
     IReadOnlyList<TierTableTitleRow> UndecidedRows);
-
-public sealed record TierTableTypeGroup(
-    string TypeName,
-    IReadOnlyList<TierTableTierGroup> Tiers);
-
-public sealed record TierTableTierGroup(
-    string TierName,
-    IReadOnlyList<TierTableTitleRow> Songs);
 
 public sealed record TierTableChartSegment(string ClearType, int Count, double Percentage);

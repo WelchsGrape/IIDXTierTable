@@ -1,0 +1,36 @@
+.clear-type-chart {
+    width: min(100%, 1000px);
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+    .clear-type-chart {
+        width: calc(100% + 3rem);
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+    }
+}
+
+.chart-bar-wrapper { position: relative; }
+.chart-total-count { display: block; text-align: right; margin-bottom: 0.5rem; font-size: 0.75rem; color: #475569; letter-spacing: -0.02em; }
+.chart-bar { display: flex; min-height: 1.2rem; border-radius: 999px; overflow: hidden; border: 1px solid #94a3b8; background-color: #e2e8f0; }
+.chart-segment { min-width: 0; display: block; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.legend-item { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.5rem; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 999px; font-size: 0.82rem; }
+.legend-chip { width: 0.9rem; height: 0.9rem; border-radius: 999px; display: inline-block; }
+.legend-chip.lamp-hard { border: 1px solid #000000; }
+.legend-count { font-weight: 700; }
+
+.lamp-no-play { background-color: #000000; }
+.lamp-failed { background-color: #d7263d; }
+.lamp-assist { background-color: #7f3fbf; }
+.lamp-easy { background-color: #8ee45d; }
+.lamp-clear { background-color: #7dd3fc; }
+.lamp-hard { background-color: #ffffff; }
+.lamp-ex-hard { background-color: #facc15; }
+.lamp-full-combo { background-color: #14b8a6; }

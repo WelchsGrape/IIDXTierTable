@@ -1,0 +1,13 @@
+<section class="rank-point-panel" aria-label="랭크 포인트">
+    <div>
+        <h2 class="rank-point-title">개전 랭크 포인트</h2>
+        <p class="rank-point-description">과제곡 ALL HARD: 100점</p>
+        <p class="rank-point-description">과제곡 ALL EX HARD ↑: 200점</p>
+    </div>
+    <strong class="rank-point-value">@Value</strong>
+</section>
+
+@code {
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+}

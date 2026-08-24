@@ -109,40 +109,10 @@ else
 
     @if (string.Equals(selectedTimelineVersion, "Sparkle Shower", StringComparison.OrdinalIgnoreCase))
     {
-        <section class="rank-point-panel" aria-label="랭크 포인트">
-            <div>
-                <h2 class="rank-point-title">개전 랭크 포인트</h2>
-                <p class="rank-point-description">과제곡 ALL HARD: 100점</p>
-                <p class="rank-point-description">과제곡 ALL EX HARD ↑: 200점</p>
-            </div>
-            <strong class="rank-point-value">@RankPointText</strong>
-        </section>
+        <RankPointPanel Value="@RankPointText" />
     }
 
-    <div class="clear-type-chart" aria-label="클리어 타입 그래프">
-        <div class="chart-bar-wrapper">
-            <div class="chart-total-count">@($"총 {VisibleRows.Count}곡")</div>
-            <div class="chart-bar" role="presentation">
-                @foreach (var segment in GetClearTypeChartSegments())
-                {
-                    <div class="chart-segment @GetLampClass(segment.ClearType)"
-                         style="flex-basis:@(segment.Percentage)%"
-                         title="@segment.ClearType"
-                         aria-label="@segment.ClearType">
-                    </div>
-                }
-            </div>
-        </div>
-        <div class="chart-legend">
-            @foreach (var segment in GetClearTypeChartSegments().Where(segment => segment.Count > 0))
-            {
-                <span class="legend-item">
-                    <span class="legend-chip @GetLampClass(segment.ClearType)" aria-hidden="true"></span>
-                    <span class="legend-count">@segment.Count</span>
-                </span>
-            }
-        </div>
-    </div>
+    <ClearTypeChart Segments="@GetClearTypeChartSegments()" TotalCount="@VisibleRows.Count" />
 
     <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
         @{
@@ -204,7 +174,7 @@ else
                                             <td class="song-td @GetSongCellClass(song)">
                                                 <div class="song-cell" title="@GetSongTooltip(song)">
                                                     <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                    <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                    <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
                                                 </div>
                                             </td>
                                         }
@@ -262,7 +232,7 @@ else
                                                 <td class="song-td @GetSongCellClass(song)">
                                                     <div class="song-cell" title="@GetSongTooltip(song)">
                                                         <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                        <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                        <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
                                                     </div>
                                                 </td>
                                             }
@@ -314,7 +284,7 @@ else
                                         <td class="song-td @GetSongCellClass(song)">
                                             <div class="song-cell" title="@GetSongTooltip(song)">
                                                 <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                <span class="song-title @GetSongTitleClass(song)">@GetShortTitle(song.Title)</span>
+                                                <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
                                             </div>
                                         </td>
                                     }
@@ -336,36 +306,16 @@ else
 @code {
     [Parameter]
     public DifficultyMode Mode { get; set; }
-
     private static readonly string[] TierOrder = ["S+", "S", "A+", "A", "B+", "B", "C", "D", "E", "F"];
     private static readonly int[] ColumnCountOptions = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private static readonly int[] TableMaxWidthOptions = [0, 1000, 1200, 1400, 1600, 1800, 2000];
     private static readonly string[] HighlightThresholdOptions = ["FULLCOMBO CLEAR", "EX HARD CLEAR", "HARD CLEAR", "CLEAR", "EASY CLEAR", "ASSIST CLEAR"];
     private static readonly string[] TimelineVersionOptions = [
-        "Sparkle Shower",
-        "Pinky Crush",
-        "EPOLIS",
-        "RESIDENT",
-        "CastHour",
-        "BISTROVER",
-        "HEROIC VERSE",
-        "Rootage",
-        "CANNON BALLERS",
-        "SINOBUZ",
-        "copula",
-        "PENDUAL",
-        "SPADA",
-        "tricoro",
-        "Lincle",
-        "Resort Anthem",
-        "SIRIUS",
-        "EMPRESS",
-        "DJ TROOPERS",
-        "GOLD",
-        "DistorteD",
-        "HAPPY SKY"
+        "Sparkle Shower", "Pinky Crush", "EPOLIS", "RESIDENT", "CastHour", "BISTROVER",
+        "HEROIC VERSE", "Rootage", "CANNON BALLERS", "SINOBUZ", "copula", "PENDUAL",
+        "SPADA", "tricoro", "Lincle", "Resort Anthem", "SIRIUS", "EMPRESS",
+        "DJ TROOPERS", "GOLD", "DistorteD", "HAPPY SKY"
     ];
-
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
     private IReadOnlyList<TierTableTitleRow> visibleRows = [];
     private IReadOnlyList<TierTableTitleRow> undecidedRows = [];
@@ -381,9 +331,7 @@ else
     private bool useTopHeader;
     private bool showOptions = true;
     private DateTimeOffset? scoreUpdatedAtUtc;
-
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
-
     private string ModeLabel => Mode == DifficultyMode.Hard ? "하드" : "노멀";
     private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private IReadOnlyList<TierTableTitleRow> VisibleRows => visibleRows;
@@ -392,9 +340,8 @@ else
     private bool UseTopHeaderMode => useTopHeader;
     private int CurrentRankCount => TierTableData.CurrentRankCount;
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
-
     private IReadOnlyList<TierTableTitleRow> UndecidedRows => undecidedRows;
-
+        
     private void RebuildViewCaches()
     {
         var view = Presentation.BuildView(
@@ -535,17 +482,6 @@ else
         return Presentation.GetTierName(row, Mode);
     }
 
-    private bool IsUndecidedRow(TierTableTitleRow row)
-    {
-        var typeName = GetTypeName(row);
-        var tierName = GetTierName(row);
-
-        return string.IsNullOrWhiteSpace(typeName)
-            || string.IsNullOrWhiteSpace(tierName)
-            || string.Equals(typeName, "미결정", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(tierName, "미결정", StringComparison.OrdinalIgnoreCase);
-    }
-
     private bool ShouldSkipTierRow(string typeName, string tierName)
     {
         var hasContent = VisibleRows.Any(row =>
@@ -558,11 +494,6 @@ else
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
     {
         return Presentation.SortSongs(songs, selectedSongSortMode.ToString(), clearTypeBySong);
-    }
-
-    private static string GetShortTitle(string title)
-    {
-        return title;
     }
 
     private async Task LoadUserScoreCacheAsync()
@@ -663,33 +594,6 @@ else
     private decimal GetRankPoint(TierTableTitleRow row)
     {
         return RankPoints.GetPoint(row.RankTier, GetClearType(row));
-    }
-
-    private static int GetTypeOrder(string typeName)
-    {
-        return typeName switch
-        {
-            "지력" => 0,
-            "개인차" => 1,
-            _ => 2
-        };
-    }
-
-    private static bool IsTierBoundary(string tierName)
-        => TierTablePresentationService.IsTierBoundary(tierName);
-
-    private sealed class TypeGroup
-    {
-        public required string TypeName { get; init; }
-
-        public required IReadOnlyList<TierGroup> Tiers { get; init; }
-    }
-
-    private sealed class TierGroup
-    {
-        public required string TierName { get; init; }
-
-        public required IReadOnlyList<TierTableTitleRow> Songs { get; init; }
     }
 
     private enum SongSortMode

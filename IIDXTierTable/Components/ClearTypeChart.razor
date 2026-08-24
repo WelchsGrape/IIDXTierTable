@@ -1,0 +1,50 @@
+@using IIDXTierTable.Services
+
+<div class="clear-type-chart" aria-label="클리어 타입 그래프">
+    <div class="chart-bar-wrapper">
+        <div class="chart-total-count">@($"총 {TotalCount}곡")</div>
+        <div class="chart-bar" role="presentation">
+            @foreach (var segment in Segments)
+            {
+                <div class="chart-segment @GetLampClass(segment.ClearType)"
+                     style="flex-basis:@(segment.Percentage)%"
+                     title="@segment.ClearType"
+                     aria-label="@segment.ClearType">
+                </div>
+            }
+        </div>
+    </div>
+    <div class="chart-legend">
+        @foreach (var segment in Segments.Where(segment => segment.Count > 0))
+        {
+            <span class="legend-item">
+                <span class="legend-chip @GetLampClass(segment.ClearType)" aria-hidden="true"></span>
+                <span class="legend-count">@segment.Count</span>
+            </span>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<TierTableChartSegment> Segments { get; set; } = [];
+
+    [Parameter]
+    public int TotalCount { get; set; }
+
+    private static string GetLampClass(string clearType)
+    {
+        return clearType switch
+        {
+            "NO PLAY" => "lamp-no-play",
+            "FAILED" => "lamp-failed",
+            "ASSIST CLEAR" => "lamp-assist",
+            "EASY CLEAR" => "lamp-easy",
+            "CLEAR" => "lamp-clear",
+            "HARD CLEAR" => "lamp-hard",
+            "EX HARD CLEAR" => "lamp-ex-hard",
+            "FULLCOMBO CLEAR" => "lamp-full-combo",
+            _ => "lamp-no-play"
+        };
+    }
+}
