@@ -46,7 +46,7 @@
 }
 
 tr.tier-boundary > th,
-tr.tier-boundary > td {
+tr.tier-boundary ::deep > td {
     border-top: 2px solid #555555;
 }
 

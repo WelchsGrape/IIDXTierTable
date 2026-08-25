@@ -30,7 +30,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
         @errorMessage
     </div>
 }
-else if (!VisibleRows.Any())
+else if (!visibleRows.Any())
 {
     <div class="alert alert-warning" role="alert">
         선택한 버전에 해당하는 @ModeLabel 서열 데이터가 없습니다.
@@ -112,11 +112,12 @@ else
         <RankPointPanel Value="@RankPointText" />
     }
 
-    <ClearTypeChart Segments="@GetClearTypeChartSegments()" TotalCount="@VisibleRows.Count" />
+    <ClearTypeChart Segments="@GetClearTypeChartSegments()" TotalCount="@visibleRows.Count" />
 
     <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
         @{
             var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
+            var undecidedTableRows = ChunkSongs(undecidedRows, columnCount);
         }
         @foreach (var tierName in TierOrder)
         {
@@ -138,7 +139,7 @@ else
                                     Rows="@standardRows"
                                     ColumnCount="@columnCount"
                                     HeaderText="@($"지력 {tierName}")"
-                                    UseTopHeader="@UseTopHeaderMode"
+                                    UseTopHeader="@useTopHeader"
                                     CellClass="@GetSongCellClass"
                                     LampClass="@GetLampClass"
                                     TitleClass="@GetSongTitleClass"
@@ -151,8 +152,8 @@ else
                                     Rows="@varianceRows"
                                     ColumnCount="@columnCount"
                                     HeaderText="@($"개인차 {tierName}")"
-                                    UseTopHeader="@UseTopHeaderMode"
-                                    IsBoundary="@(!UseTopHeaderMode && standardRows.Count > 0)"
+                                    UseTopHeader="@useTopHeader"
+                                    IsBoundary="@(!useTopHeader && standardRows.Count > 0)"
                                     CellClass="@GetSongCellClass"
                                     LampClass="@GetLampClass"
                                     TitleClass="@GetSongTitleClass"
@@ -165,22 +166,18 @@ else
         }
     </div>
 
-    @if (UndecidedRows.Count > 0)
+    @if (undecidedTableRows.Count > 0)
     {
         <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
             <section class="matrix-type-section">
                 <div class="matrix-scroll" style="@TableMaxWidthStyle">
                     <table class="matrix-table" aria-label="@($"미결정 {ModeLabel} 서열표")">
                         <tbody>
-                            @{
-                                var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
-                            }
-
                             <TierTableRows
-                                Rows="@undecidedRows"
+                                Rows="@undecidedTableRows"
                                 ColumnCount="@columnCount"
                                 HeaderText="미결정"
-                                UseTopHeader="@UseTopHeaderMode"
+                                UseTopHeader="@useTopHeader"
                                 CellClass="@GetSongCellClass"
                                 LampClass="@GetLampClass"
                                 TitleClass="@GetSongTitleClass"
@@ -224,14 +221,10 @@ else
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
     private string ModeLabel => Mode == DifficultyMode.Hard ? "하드" : "노멀";
     private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
-    private IReadOnlyList<TierTableTitleRow> VisibleRows => visibleRows;
     private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
-    private bool UseTopHeaderMode => useTopHeader;
-    private int CurrentRankCount => TierTableData.CurrentRankCount;
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
-    private IReadOnlyList<TierTableTitleRow> UndecidedRows => undecidedRows;
-        
+
     private void RebuildViewCaches()
     {
         var view = Presentation.BuildView(
@@ -328,13 +321,10 @@ else
     }
 
     private static SongSortMode ParseSongSortMode(string? value)
-    {
-        return Enum.TryParse<SongSortMode>(value, true, out var mode) ? mode : SongSortMode.ByTitle;
-    }
+        => Enum.TryParse<SongSortMode>(value, true, out var mode) ? mode : SongSortMode.ByTitle;
 
     private Dictionary<string, Dictionary<string, IReadOnlyList<TierTableTitleRow>>> BuildSongsByTypeAndTierLookup()
-    {
-        return VisibleRows
+        => visibleRows
             .Where(row => !string.IsNullOrWhiteSpace(GetTypeName(row)) && !string.IsNullOrWhiteSpace(GetTierName(row)))
             .GroupBy(row => GetTypeName(row), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(
@@ -346,7 +336,6 @@ else
                         tierGroup => (IReadOnlyList<TierTableTitleRow>)SortSongs(tierGroup),
                         StringComparer.OrdinalIgnoreCase),
                 StringComparer.OrdinalIgnoreCase);
-    }
 
     private static IReadOnlyList<TierTableTitleRow> GetSongsFromLookup(
         IReadOnlyDictionary<string, Dictionary<string, IReadOnlyList<TierTableTitleRow>>> lookup,
@@ -363,19 +352,13 @@ else
     }
 
     private string GetTypeName(TierTableTitleRow row)
-    {
-        return Presentation.GetTypeName(row, Mode);
-    }
+        => Presentation.GetTypeName(row, Mode);
 
     private string GetTierName(TierTableTitleRow row)
-    {
-        return Presentation.GetTierName(row, Mode);
-    }
+        => Presentation.GetTierName(row, Mode);
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
-    {
-        return Presentation.SortSongs(songs, selectedSongSortMode.ToString(), clearTypeBySong);
-    }
+        => Presentation.SortSongs(songs, selectedSongSortMode.ToString(), clearTypeBySong);
 
     private async Task LoadUserScoreCacheAsync()
     {
@@ -394,20 +377,13 @@ else
     }
 
     private string GetSongTooltip(TierTableTitleRow row)
-    {
-        var clearType = GetClearType(row);
-        return string.Concat(row.Title, " (", row.Difficulty, ") - ", clearType);
-    }
+        => string.Concat(row.Title, " (", row.Difficulty, ") - ", GetClearType(row));
 
     private string GetLampClass(TierTableTitleRow row)
-    {
-        var clearType = GetClearType(row);
-        return GetLampClass(clearType);
-    }
+        => GetLampClass(GetClearType(row));
 
     private static string GetLampClass(string clearType)
-    {
-        return clearType switch
+        => clearType switch
         {
             "NO PLAY" => "lamp-no-play",
             "FAILED" => "lamp-failed",
@@ -419,7 +395,6 @@ else
             "FULLCOMBO CLEAR" => "lamp-full-combo",
             _ => "lamp-no-play"
         };
-    }
 
     private string GetSongCellClass(TierTableTitleRow row)
     {
@@ -451,31 +426,27 @@ else
     }
 
     private string GetClearType(TierTableTitleRow row)
-    {
-        return SongMatcher.GetClearType(row, clearTypeBySong);
-    }
+        => SongMatcher.GetClearType(row, clearTypeBySong);
 
     private List<List<TierTableTitleRow>> ChunkSongs(IReadOnlyList<TierTableTitleRow> songs, int chunkSize)
         => Presentation.ChunkSongs(songs, chunkSize).ToList();
 
     private IReadOnlyList<TierTableChartSegment> GetClearTypeChartSegments()
-        => Presentation.BuildChart(VisibleRows, clearTypeBySong);
+        => Presentation.BuildChart(visibleRows, clearTypeBySong);
 
     private decimal GetRankPointTotal()
     {
-        var cumulativePoints = VisibleRows.Sum(GetRankPoint);
-        if (CurrentRankCount <= 0)
+        var cumulativePoints = visibleRows.Sum(GetRankPoint);
+        if (TierTableData.CurrentRankCount <= 0)
         {
             return 0;
         }
 
-        return cumulativePoints / CurrentRankCount / 12m;
+        return cumulativePoints / TierTableData.CurrentRankCount / 12m;
     }
 
     private decimal GetRankPoint(TierTableTitleRow row)
-    {
-        return RankPoints.GetPoint(row.RankTier, GetClearType(row));
-    }
+        => RankPoints.GetPoint(row.RankTier, GetClearType(row));
 
     private enum SongSortMode
     {
