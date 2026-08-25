@@ -1427,7 +1427,7 @@
         "NormalTier":  "A+",
         "HardType":  "지력",
         "HardTier":  "S",
-        "RankTier":  ""
+        "RankTier":  "6"
     },
     {
         "Version":  "24",
@@ -2725,7 +2725,7 @@
         "NormalTier":  "S",
         "HardType":  "개인차",
         "HardTier":  "S+",
-        "RankTier":  ""
+        "RankTier":  "7"
     },
     {
         "Version":  "26",
@@ -2868,7 +2868,7 @@
         "NormalTier":  "A",
         "HardType":  "지력",
         "HardTier":  "A+",
-        "RankTier":  ""
+        "RankTier":  "5"
     },
     {
         "Version":  "27",
@@ -3891,7 +3891,7 @@
         "NormalTier":  "A+",
         "HardType":  "개인차",
         "HardTier":  "A+",
-        "RankTier":  ""
+        "RankTier":  "4"
     },
     {
         "Version":  "23",
@@ -4518,7 +4518,7 @@
         "NormalTier":  "B+",
         "HardType":  "지력",
         "HardTier":  "B+",
-        "RankTier":  ""
+        "RankTier":  "2"
     },
     {
         "Version":  "24",
@@ -5189,7 +5189,7 @@
         "NormalTier":  "D",
         "HardType":  "지력",
         "HardTier":  "C",
-        "RankTier":  ""
+        "RankTier":  "1"
     },
     {
         "Version":  "26",
@@ -6685,7 +6685,7 @@
         "NormalTier":  "B+",
         "HardType":  "지력",
         "HardTier":  "B+",
-        "RankTier":  ""
+        "RankTier":  "3"
     },
     {
         "Version":  "20",
