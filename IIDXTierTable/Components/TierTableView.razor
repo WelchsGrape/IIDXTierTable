@@ -132,26 +132,7 @@ else
                 <div class="matrix-scroll" style="@TableMaxWidthStyle">
                     <table class="matrix-table" aria-label="@($"{tierName} {ModeLabel} 서열표")">
                         <tbody>
-                            @if (standardRows.Count == 0)
-                            {
-                                if (UseTopHeaderMode)
-                                {
-                                    <tr>
-                                        <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
-                                    </tr>
-                                    <tr>
-                                        <td class="empty-cell" colspan="@columnCount">-</td>
-                                    </tr>
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <th scope="row" class="tier-header">지력 @tierName</th>
-                                        <td class="empty-cell" colspan="@columnCount">-</td>
-                                    </tr>
-                                }
-                            }
-                            else
+                            @if (standardRows.Count > 0)
                             {
                                 @if (UseTopHeaderMode)
                                 {
