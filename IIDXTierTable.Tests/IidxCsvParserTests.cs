@@ -87,6 +87,58 @@ public sealed class IidxCsvParserTests
         Assert.Contains("CSV 입력이 비어 있습니다.", result.Errors);
     }
 
+    [Fact]
+    public void Parse_InvalidHeader_ReturnsHeaderError()
+    {
+        var lines = ReadFixture().Split("\r\n", StringSplitOptions.None);
+        lines[0] = lines[0].Replace("バージョン", "Version", StringComparison.Ordinal);
+
+        var result = new IidxCsvParser().Parse(string.Join("\r\n", lines));
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("헤더 불일치", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parse_InvalidRowColumnCount_ReturnsColumnCountError()
+    {
+        var lines = ReadFixture().Split("\r\n", StringSplitOptions.None);
+        lines[1] = string.Join(',', lines[1].Split(',').Take(3));
+
+        var result = new IidxCsvParser().Parse(string.Join("\r\n", lines));
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("열 개수 오류", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parse_InvalidNumber_ReturnsNumberError()
+    {
+        var lines = ReadFixture().Split("\r\n", StringSplitOptions.None);
+        var cells = lines[1].Split(',');
+        cells[4] = "not-a-number";
+        lines[1] = string.Join(',', cells);
+
+        var result = new IidxCsvParser().Parse(string.Join("\r\n", lines));
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("숫자 파싱 실패", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parse_EmptyTitle_ReturnsTitleError()
+    {
+        var lines = ReadFixture().Split("\r\n", StringSplitOptions.None);
+        var cells = lines[1].Split(',');
+        cells[1] = string.Empty;
+        lines[1] = string.Join(',', cells);
+
+        var result = new IidxCsvParser().Parse(string.Join("\r\n", lines));
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains(result.Errors, error => error.Contains("제목이 비어 있습니다", StringComparison.Ordinal));
+    }
+
     private static string ReadFixture()
     {
         using var stream = Assembly.GetExecutingAssembly()

@@ -65,4 +65,30 @@ public sealed class SongMatchServiceTests
 
         Assert.Equal("NO PLAY", service.GetClearType(row, new Dictionary<string, string>()));
     }
+
+    [Fact]
+    public void GetClearType_TrimsMatchedClearType()
+    {
+        var service = new SongMatchService();
+        var row = new TierTableTitleRow { Title = "Song", Difficulty = "ANOTHER" };
+        var lookup = new Dictionary<string, string>
+        {
+            [SongMatchService.BuildSongKey("Song", "ANOTHER")] = " HARD CLEAR "
+        };
+
+        Assert.Equal("HARD CLEAR", service.GetClearType(row, lookup));
+    }
+
+    [Fact]
+    public void GetClearType_ReturnsNoPlayWhenMatchedClearTypeIsEmpty()
+    {
+        var service = new SongMatchService();
+        var row = new TierTableTitleRow { Title = "Song", Difficulty = "ANOTHER" };
+        var lookup = new Dictionary<string, string>
+        {
+            [SongMatchService.BuildSongKey("Song", "ANOTHER")] = "   "
+        };
+
+        Assert.Equal("NO PLAY", service.GetClearType(row, lookup));
+    }
 }
