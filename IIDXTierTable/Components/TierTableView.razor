@@ -152,12 +152,12 @@ else
 
                                         @foreach (var song in row)
                                         {
-                                            <td class="song-td @GetSongCellClass(song)">
-                                                <div class="song-cell" title="@GetSongTooltip(song)">
-                                                    <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                    <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
-                                                </div>
-                                            </td>
+                                            <SongCell
+                                                Song="@song"
+                                                CellClass="@GetSongCellClass(song)"
+                                                LampClass="@GetLampClass(song)"
+                                                TitleClass="@GetSongTitleClass(song)"
+                                                Tooltip="@GetSongTooltip(song)" />
                                         }
 
                                         @for (var i = row.Count; i < columnCount; i++)
@@ -210,12 +210,12 @@ else
 
                                             @foreach (var song in row)
                                             {
-                                                <td class="song-td @GetSongCellClass(song)">
-                                                    <div class="song-cell" title="@GetSongTooltip(song)">
-                                                        <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                        <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
-                                                    </div>
-                                                </td>
+                                                <SongCell
+                                                    Song="@song"
+                                                    CellClass="@GetSongCellClass(song)"
+                                                    LampClass="@GetLampClass(song)"
+                                                    TitleClass="@GetSongTitleClass(song)"
+                                                    Tooltip="@GetSongTooltip(song)" />
                                             }
 
                                             @for (var i = row.Count; i < columnCount; i++)
@@ -262,12 +262,12 @@ else
 
                                     @foreach (var song in row)
                                     {
-                                        <td class="song-td @GetSongCellClass(song)">
-                                            <div class="song-cell" title="@GetSongTooltip(song)">
-                                                <span class="lamp-cell @GetLampClass(song)" aria-hidden="true"></span>
-                                                <span class="song-title @GetSongTitleClass(song)">@song.Title</span>
-                                            </div>
-                                        </td>
+                                        <SongCell
+                                            Song="@song"
+                                            CellClass="@GetSongCellClass(song)"
+                                            LampClass="@GetLampClass(song)"
+                                            TitleClass="@GetSongTitleClass(song)"
+                                            Tooltip="@GetSongTooltip(song)" />
                                     }
 
                                     @for (var i = row.Count; i < columnCount; i++)

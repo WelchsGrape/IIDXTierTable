@@ -1,0 +1,25 @@
+@using IIDXTierTable.Services
+
+<td class="song-td @CellClass">
+    <div class="song-cell" title="@Tooltip">
+        <span class="lamp-cell @LampClass" aria-hidden="true"></span>
+        <span class="song-title @TitleClass">@Song.Title</span>
+    </div>
+</td>
+
+@code {
+    [Parameter, EditorRequired]
+    public TierTableTitleRow Song { get; set; } = null!;
+
+    [Parameter]
+    public string CellClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public string LampClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public string TitleClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Tooltip { get; set; } = string.Empty;
+}

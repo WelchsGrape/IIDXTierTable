@@ -103,12 +103,6 @@
     box-sizing: border-box;
 }
 
-.type-title {
-    margin: 0 0 0.75rem;
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
 .matrix-scroll {
     overflow-x: auto;
 }
@@ -178,86 +172,6 @@
     text-overflow: ellipsis;
 }
 
-.matrix-table td.song-td {
-    padding: 0;
-}
-
-.matrix-table td.song-td-no-play {
-    background-color: #f3f3f3;
-}
-
-.matrix-table td.song-td-low-clear {
-    background-color: #fff0f0;
-}
-
-.matrix-table td.song-td-high-clear {
-    background-color: #eef8ff;
-}
-
-.song-cell {
-    display: flex;
-    align-items: stretch;
-    width: 100%;
-    min-height: 100%;
-}
-
-.song-title {
-    display: block;
-    padding: 0.35rem 0.45rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.song-title-hyper {
-    color: #eab308;
-}
-
-.song-title-leggendaria {
-    color: #8b5cf6;
-}
-
-.song-title-new-version {
-    color: #65a30d;
-}
-
-.lamp-cell {
-    flex: 0 0 0.7rem;
-    align-self: stretch;
-    border-right: 1px solid #555555;
-}
-
-.lamp-no-play {
-    background-color: #000000;
-}
-
-.lamp-failed {
-    background-color: #d7263d;
-}
-
-.lamp-assist {
-    background-color: #7f3fbf;
-}
-
-.lamp-easy {
-    background-color: #8ee45d;
-}
-
-.lamp-clear {
-    background-color: #7dd3fc;
-}
-
-.lamp-hard {
-    background-color: #ffffff;
-}
-
-.lamp-ex-hard {
-    background-color: #facc15;
-}
-
-.lamp-full-combo {
-    background-color: #14b8a6;
-}
 
 .pad-cell {
     background-color: #f8f8f8;
