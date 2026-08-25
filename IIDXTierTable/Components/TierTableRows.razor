@@ -1,0 +1,64 @@
+@using IIDXTierTable.Services
+
+@if (UseTopHeader)
+{
+    <tr>
+        <th colspan="@ColumnCount" class="tier-header compact-header">@HeaderText</th>
+    </tr>
+}
+
+@for (var rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+{
+    var row = Rows[rowIndex];
+    var rowClass = rowIndex == 0 && IsBoundary ? "tier-boundary" : null;
+    <tr class="@rowClass">
+        @if (!UseTopHeader && rowIndex == 0)
+        {
+            <th scope="row" class="tier-header" rowspan="@Rows.Count">@HeaderText</th>
+        }
+
+        @foreach (var song in row)
+        {
+            <SongCell
+                Song="@song"
+                CellClass="@CellClass(song)"
+                LampClass="@LampClass(song)"
+                TitleClass="@TitleClass(song)"
+                Tooltip="@Tooltip(song)" />
+        }
+
+        @for (var i = row.Count; i < ColumnCount; i++)
+        {
+            <td class="pad-cell"></td>
+        }
+    </tr>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<List<TierTableTitleRow>> Rows { get; set; } = null!;
+
+    [Parameter]
+    public int ColumnCount { get; set; }
+
+    [Parameter]
+    public string HeaderText { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool UseTopHeader { get; set; }
+
+    [Parameter]
+    public bool IsBoundary { get; set; }
+
+    [Parameter, EditorRequired]
+    public Func<TierTableTitleRow, string> CellClass { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<TierTableTitleRow, string> LampClass { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<TierTableTitleRow, string> TitleClass { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public Func<TierTableTitleRow, string> Tooltip { get; set; } = null!;
+}

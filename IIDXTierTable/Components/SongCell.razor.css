@@ -87,3 +87,11 @@
 .lamp-full-combo {
     background-color: #14b8a6;
 }
+
+@media (max-width: 768px) {
+    .song-td {
+        min-width: 8rem;
+        max-width: 8rem;
+        font-size: 0.76rem;
+    }
+}

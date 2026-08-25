@@ -1,0 +1,63 @@
+.tier-header {
+    width: 5rem;
+    min-width: 5rem;
+    max-width: 5rem;
+    text-align: center;
+    background-color: #e8f7d9;
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    border: 1px solid #555555;
+    border-top: 2px solid #555555;
+    border-right: 2px solid #555555;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    line-height: 1.2;
+}
+
+.tier-header.compact-header {
+    position: static;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.75rem 0.9rem;
+    border-top: 2px solid #555555;
+    border-right: none;
+    border-bottom: 2px solid #555555;
+    background-color: #e8f7d9;
+    font-size: 0.95rem;
+}
+
+.pad-cell {
+    border: 1px solid #555555;
+    padding: 0.35rem 0.45rem;
+    background-color: #f3f3f3;
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    line-height: 1.2;
+}
+
+tr.tier-boundary > th,
+tr.tier-boundary > td {
+    border-top: 2px solid #555555;
+}
+
+@media (max-width: 768px) {
+    .tier-header,
+    .pad-cell {
+        font-size: 0.76rem;
+    }
+
+    .pad-cell {
+        min-width: 8rem;
+        max-width: 8rem;
+    }
+}

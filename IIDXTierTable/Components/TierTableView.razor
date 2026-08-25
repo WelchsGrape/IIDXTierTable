@@ -134,97 +134,29 @@ else
                         <tbody>
                             @if (standardRows.Count > 0)
                             {
-                                @if (UseTopHeaderMode)
-                                {
-                                    <tr>
-                                        <th colspan="@columnCount" class="tier-header compact-header">지력 @tierName</th>
-                                    </tr>
-                                }
-
-                                for (var rowIndex = 0; rowIndex < standardRows.Count; rowIndex++)
-                                {
-                                    var row = standardRows[rowIndex];
-                                    <tr>
-                                        @if (!UseTopHeaderMode && rowIndex == 0)
-                                        {
-                                            <th scope="row" class="tier-header" rowspan="@standardRows.Count">지력 @tierName</th>
-                                        }
-
-                                        @foreach (var song in row)
-                                        {
-                                            <SongCell
-                                                Song="@song"
-                                                CellClass="@GetSongCellClass(song)"
-                                                LampClass="@GetLampClass(song)"
-                                                TitleClass="@GetSongTitleClass(song)"
-                                                Tooltip="@GetSongTooltip(song)" />
-                                        }
-
-                                        @for (var i = row.Count; i < columnCount; i++)
-                                        {
-                                            <td class="pad-cell"></td>
-                                        }
-                                    </tr>
-                                }
+                                <TierTableRows
+                                    Rows="@standardRows"
+                                    ColumnCount="@columnCount"
+                                    HeaderText="@($"지력 {tierName}")"
+                                    UseTopHeader="@UseTopHeaderMode"
+                                    CellClass="@GetSongCellClass"
+                                    LampClass="@GetLampClass"
+                                    TitleClass="@GetSongTitleClass"
+                                    Tooltip="@GetSongTooltip" />
                             }
 
-                            @if (!ShouldSkipTierRow("개인차", tierName))
+                            @if (varianceRows.Count > 0)
                             {
-                                if (varianceRows.Count == 0)
-                                {
-                                    if (UseTopHeaderMode)
-                                    {
-                                        <tr>
-                                            <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
-                                        </tr>
-                                        <tr>
-                                            <td class="empty-cell" colspan="@columnCount">-</td>
-                                        </tr>
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <th scope="row" class="tier-header">개인차 @tierName</th>
-                                            <td class="empty-cell" colspan="@columnCount">-</td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    @if (UseTopHeaderMode)
-                                    {
-                                        <tr>
-                                            <th colspan="@columnCount" class="tier-header compact-header">개인차 @tierName</th>
-                                        </tr>
-                                    }
-
-                                    for (var rowIndex = 0; rowIndex < varianceRows.Count; rowIndex++)
-                                    {
-                                        var row = varianceRows[rowIndex];
-                                        var rowClass = rowIndex == 0 && !UseTopHeaderMode && standardRows.Count > 0 ? "tier-boundary" : null;
-                                        <tr class="@rowClass">
-                                            @if (!UseTopHeaderMode && rowIndex == 0)
-                                            {
-                                                <th scope="row" class="tier-header" rowspan="@varianceRows.Count">개인차 @tierName</th>
-                                            }
-
-                                            @foreach (var song in row)
-                                            {
-                                                <SongCell
-                                                    Song="@song"
-                                                    CellClass="@GetSongCellClass(song)"
-                                                    LampClass="@GetLampClass(song)"
-                                                    TitleClass="@GetSongTitleClass(song)"
-                                                    Tooltip="@GetSongTooltip(song)" />
-                                            }
-
-                                            @for (var i = row.Count; i < columnCount; i++)
-                                            {
-                                                <td class="pad-cell"></td>
-                                            }
-                                        </tr>
-                                    }
-                                }
+                                <TierTableRows
+                                    Rows="@varianceRows"
+                                    ColumnCount="@columnCount"
+                                    HeaderText="@($"개인차 {tierName}")"
+                                    UseTopHeader="@UseTopHeaderMode"
+                                    IsBoundary="@(!UseTopHeaderMode && standardRows.Count > 0)"
+                                    CellClass="@GetSongCellClass"
+                                    LampClass="@GetLampClass"
+                                    TitleClass="@GetSongTitleClass"
+                                    Tooltip="@GetSongTooltip" />
                             }
                         </tbody>
                     </table>
@@ -244,38 +176,15 @@ else
                                 var undecidedRows = ChunkSongs(UndecidedRows, columnCount);
                             }
 
-                            @if (UseTopHeaderMode)
-                            {
-                                <tr>
-                                    <th colspan="@columnCount" class="tier-header compact-header">미결정</th>
-                                </tr>
-                            }
-
-                            @for (var rowIndex = 0; rowIndex < undecidedRows.Count; rowIndex++)
-                            {
-                                var row = undecidedRows[rowIndex];
-                                <tr>
-                                    @if (!UseTopHeaderMode && rowIndex == 0)
-                                    {
-                                        <th scope="row" class="tier-header" rowspan="@undecidedRows.Count">미결정</th>
-                                    }
-
-                                    @foreach (var song in row)
-                                    {
-                                        <SongCell
-                                            Song="@song"
-                                            CellClass="@GetSongCellClass(song)"
-                                            LampClass="@GetLampClass(song)"
-                                            TitleClass="@GetSongTitleClass(song)"
-                                            Tooltip="@GetSongTooltip(song)" />
-                                    }
-
-                                    @for (var i = row.Count; i < columnCount; i++)
-                                    {
-                                        <td class="pad-cell"></td>
-                                    }
-                                </tr>
-                            }
+                            <TierTableRows
+                                Rows="@undecidedRows"
+                                ColumnCount="@columnCount"
+                                HeaderText="미결정"
+                                UseTopHeader="@UseTopHeaderMode"
+                                CellClass="@GetSongCellClass"
+                                LampClass="@GetLampClass"
+                                TitleClass="@GetSongTitleClass"
+                                Tooltip="@GetSongTooltip" />
                         </tbody>
                     </table>
                 </div>
@@ -461,15 +370,6 @@ else
     private string GetTierName(TierTableTitleRow row)
     {
         return Presentation.GetTierName(row, Mode);
-    }
-
-    private bool ShouldSkipTierRow(string typeName, string tierName)
-    {
-        var hasContent = VisibleRows.Any(row =>
-            string.Equals(GetTypeName(row), typeName, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(GetTierName(row), tierName, StringComparison.OrdinalIgnoreCase));
-
-        return !hasContent;
     }
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
