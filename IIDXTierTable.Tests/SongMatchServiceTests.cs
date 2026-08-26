@@ -91,4 +91,32 @@ public sealed class SongMatchServiceTests
 
         Assert.Equal("NO PLAY", service.GetClearType(row, lookup));
     }
+
+    [Fact]
+    public void BuildClearTypeLookup_StoresEachDifficultyIndependently()
+    {
+        var service = new SongMatchService();
+        var envelope = new IidxScoreEnvelope
+        {
+            Songs =
+            [
+                new IidxSongRecord
+                {
+                    Title = "Song",
+                    Difficulties = new Dictionary<string, IidxDifficultyRecord>
+                    {
+                        ["HYPER"] = new() { ClearType = "CLEAR" },
+                        ["ANOTHER"] = new() { ClearType = "HARD CLEAR" }
+                    }
+                }
+            ]
+        };
+
+        var lookup = service.BuildClearTypeLookup(envelope);
+
+        Assert.Equal("CLEAR", service.GetClearType(
+            new TierTableTitleRow { Title = "Song", Difficulty = "HYPER" }, lookup));
+        Assert.Equal("HARD CLEAR", service.GetClearType(
+            new TierTableTitleRow { Title = "Song", Difficulty = "ANOTHER" }, lookup));
+    }
 }

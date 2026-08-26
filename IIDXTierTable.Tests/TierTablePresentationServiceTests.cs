@@ -41,6 +41,21 @@ public sealed class TierTablePresentationServiceTests
     }
 
     [Fact]
+    public void BuildView_ClassifiesBlankTierAsUndecided()
+    {
+        var rows = new[]
+        {
+            Row("EPOLIS", "Blank tier", normalTier: string.Empty),
+            Row("EPOLIS", "Decided")
+        };
+
+        var result = service.BuildView(rows, DifficultyMode.Normal, "EPOLIS", "ByTitle", EmptyLookup());
+
+        Assert.Equal("Blank tier", Assert.Single(result.UndecidedRows).Title);
+        Assert.Equal("Decided", Assert.Single(result.VisibleRows, row => row.Title == "Decided").Title);
+    }
+
+    [Fact]
     public void SortSongs_SortsByLampAscendingAndDescending()
     {
         var rows = new[]
