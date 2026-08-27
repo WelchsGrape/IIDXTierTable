@@ -16,6 +16,11 @@
     color: #444;
 }
 
+.home-update-log .update-detail {
+    margin: 0.25rem 0 0;
+    padding-left: 1.2rem;
+}
+
 .home-update-log .update-list {
     margin: 0;
     padding-left: 1.2rem;

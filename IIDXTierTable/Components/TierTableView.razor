@@ -226,7 +226,7 @@ else
     private bool rankPointsAvailable;
     private DateTimeOffset? scoreUpdatedAtUtc;
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
-    private string ModeLabel => Mode == DifficultyMode.Hard ? "하드" : "노멀";
+    private string ModeLabel => Mode == DifficultyMode.Hard ? "Hard" : "Normal";
     private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
     private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
     private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
@@ -450,6 +450,7 @@ else
     private IReadOnlyList<TierTableChartSegment> GetClearTypeChartSegments()
         => Presentation.BuildChart(visibleRows, clearTypeBySong);
 
+    // 랭크 포인트 계산
     private decimal GetRankPointTotal()
     {
         var cumulativePoints = visibleRows.Sum(GetRankPoint);
@@ -457,7 +458,8 @@ else
         {
             return 0;
         }
-
+        
+        // 2400점 만점이므로 200점 만점으로 줄이기 위해 12로 나눔
         return cumulativePoints / TierTableData.CurrentRankCount / 12m;
     }
 
