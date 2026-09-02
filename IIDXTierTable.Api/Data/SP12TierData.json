@@ -5218,10 +5218,10 @@
         "Title":  "Urban Constellations",
         "MatchTitle":  "",
         "Difficulty":  "LEGGENDARIA",
-        "NormalType":  "",
-        "NormalTier":  "",
-        "HardType":  "",
-        "HardTier":  "",
+        "NormalType":  "개인차",
+        "NormalTier":  "A+",
+        "HardType":  "개인차",
+        "HardTier":  "A+",
         "RankTier":  ""
     },
     {
@@ -6912,10 +6912,10 @@
         "Title":  "寝起きヤシの木",
         "MatchTitle":  "",
         "Difficulty":  "LEGGENDARIA",
-        "NormalType":  "",
-        "NormalTier":  "",
-        "HardType":  "",
-        "HardTier":  "",
+        "NormalType":  "지력",
+        "NormalTier":  "B+",
+        "HardType":  "개인차",
+        "HardTier":  "A",
         "RankTier":  ""
     },
     {
