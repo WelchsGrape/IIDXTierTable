@@ -5,15 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace IIDXTierTable.Api;
 
-public sealed class TierTableFunction
+public sealed class TierTableFunction(ILogger<TierTableFunction> logger)
 {
-    private readonly ILogger<TierTableFunction> _logger;
-
-    public TierTableFunction(ILogger<TierTableFunction> logger)
-    {
-        _logger = logger;
-    }
-
     [Function("GetTierTable")]
     public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "tier-table")] HttpRequest request)
@@ -21,7 +14,7 @@ public sealed class TierTableFunction
         return await JsonFileResponse.CreateAsync(
             "SP12TierData.json",
             request,
-            _logger,
+            logger,
             "서열표 데이터");
     }
 }

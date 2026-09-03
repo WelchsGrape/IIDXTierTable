@@ -2,15 +2,8 @@ using IIDXTierTable.Models;
 
 namespace IIDXTierTable.Services;
 
-public sealed class TierTablePresentationService
+public sealed class TierTablePresentationService(SongMatchService songMatcher)
 {
-    private readonly SongMatchService songMatcher;
-
-    public TierTablePresentationService(SongMatchService songMatcher)
-    {
-        this.songMatcher = songMatcher;
-    }
-
     public TierTableViewData BuildView(
         IEnumerable<TierTableTitleRow> rows,
         DifficultyMode mode,

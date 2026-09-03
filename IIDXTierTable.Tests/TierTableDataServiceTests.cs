@@ -59,17 +59,8 @@ public sealed class TierTableDataServiceTests
     private static HttpClient CreateClient(StubHttpMessageHandler handler)
         => new(handler) { BaseAddress = new Uri("https://example.test/") };
 
-    private sealed class StubHttpMessageHandler : HttpMessageHandler
+    private sealed class StubHttpMessageHandler(HttpStatusCode statusCode, string content) : HttpMessageHandler
     {
-        private readonly HttpStatusCode statusCode;
-        private readonly string content;
-
-        public StubHttpMessageHandler(HttpStatusCode statusCode, string content)
-        {
-            this.statusCode = statusCode;
-            this.content = content;
-        }
-
         public int RequestCount { get; private set; }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

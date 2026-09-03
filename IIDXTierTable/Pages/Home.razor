@@ -1,4 +1,7 @@
 ﻿@page "/"
+@using IIDXTierTable.Services
+@inject HttpClient Http
+@inject HomeUpdateDataService UpdateData
 
 <PageTitle>Home</PageTitle>
 
@@ -18,23 +21,28 @@
         <li>20회차 개전 랭크 반영</li>
     </ul>
 </section>
-<section class="home-update-log mt-3">
-    <h2>Normal / Hard 서열표 배정 (09/03)</h2>
-    <ul class="update-list">
-        <li>
-            Urban Constellations
-            <p class="update-detail">- 개인차 A+ / 개인차 A+</p>
-        </li>
-        <li>
-            寝起きヤシの木
-            <p class="update-detail">- 지력 B+ / 개인차 A</p>
-        </li>
-    </ul>
-</section>
-<section class="home-update-log mt-3">
-    <h2>신곡/신보면 추가 (08/20)</h2>
-    <ul class="update-list">
-        <li>27th style</li>
-        <li>Raison d'etre～交差する宿命～</li>
-    </ul>
-</section>
+@foreach (var section in UpdateData.Sections)
+{
+    <section class="home-update-log mt-3">
+        <h2>@section.Title (@section.Date)</h2>
+        <ul class="update-list">
+            @foreach (var item in section.Items)
+            {
+                <li>
+                    @item.Title
+                    @if (!string.IsNullOrWhiteSpace(item.Detail))
+                    {
+                        <p class="update-detail">- @item.Detail</p>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateData.InitializeAsync(Http);
+    }
+}

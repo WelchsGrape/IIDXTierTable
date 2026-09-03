@@ -42,15 +42,8 @@ public sealed class RankPointServiceTests
         Assert.Equal(0, service.GetPoint("invalid", "CLEAR"));
     }
 
-    private sealed class StubHttpMessageHandler : HttpMessageHandler
+    private sealed class StubHttpMessageHandler(string response) : HttpMessageHandler
     {
-        private readonly string response;
-
-        public StubHttpMessageHandler(string response)
-        {
-            this.response = response;
-        }
-
         public int RequestCount { get; private set; }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

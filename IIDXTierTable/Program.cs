@@ -21,6 +21,7 @@ builder.Services.AddScoped<IidxCsvParser>();
 builder.Services.AddScoped<SongMatchService>();
 builder.Services.AddScoped<TierTablePresentationService>();
 builder.Services.AddScoped<TierTableDataService>();
+builder.Services.AddScoped<HomeUpdateDataService>();
 builder.Services.AddScoped<RankPointService>();
 
 await builder.Build().RunAsync();

@@ -5,16 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace IIDXTierTable.Api;
 
-public sealed class RankPointsFunction(ILogger<RankPointsFunction> logger)
+public sealed class HomeUpdatesFunction(ILogger<HomeUpdatesFunction> logger)
 {
-    [Function("GetRankPoints")]
+    [Function("GetHomeUpdates")]
     public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "rank-points")] HttpRequest request)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "home-updates")] HttpRequest request)
     {
         return await JsonFileResponse.CreateAsync(
-            "RankPoints.json",
+            "HomeUpdates.json",
             request,
             logger,
-            "랭크 포인트 데이터");
+            "Home 업데이트 데이터");
     }
 }
