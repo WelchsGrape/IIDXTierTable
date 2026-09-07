@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject TierTableDataService TierTableData
 @inject RankPointService RankPoints
+@inject ExHardTierThresholdService ExHardThresholds
 @inject SongMatchService SongMatcher
 @inject TierTablePresentationService Presentation
 @inject BrowserStorageService Storage
@@ -16,7 +17,14 @@
         사용자 데이터 갱신 일자: @(scoreUpdatedAtUtc is null ? "없음" : scoreUpdatedAtUtc.Value.ToLocalTime().ToString("yyyy년 M월 d일 HH시 mm분"))
     </p>
 </div>
-<p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
+@if (Mode == DifficultyMode.ExHard)
+{
+    <p><a href="https://cpi.makecir.com/scores">Clear Power Indicator</a>를 기준으로 수치가 산출된 곡 목록을 보여줍니다.</p>
+}
+else
+{
+    <p><a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSUdp6iuEzE8Z5AL1hkoxzLexp89nJnLQMmICm6_MC0_UjCp1ImZFzabcZkvCpK7mcWvm_2t6iYoJRg/pubhtml" target="_blank" rel="noopener noreferrer">SP LEVEL 12 참고표</a>를 기준으로 가결정 이상 투표가 진행된 곡 목록을 보여줍니다.</p>
+}
 
 @if (isLoading)
 {
@@ -120,6 +128,60 @@ else
 
     <ClearTypeChart Segments="@GetClearTypeChartSegments()" TotalCount="@visibleRows.Count" />
 
+    @if (Mode == DifficultyMode.ExHard)
+    {
+        <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
+            @foreach (var threshold in ExHardThresholds.Thresholds)
+            {
+                var exHardRows = ChunkSongs(GetExHardSongs(threshold.Tier), columnCount);
+                if (exHardRows.Count == 0)
+                {
+                    continue;
+                }
+
+                <section class="matrix-type-section">
+                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
+                        <table class="matrix-table" aria-label="@($"{threshold.Tier} EX HARD 서열표")">
+                            <tbody>
+                                <TierTableRows
+                                    Rows="@exHardRows"
+                                    ColumnCount="@columnCount"
+                                    HeaderText="@threshold.Tier"
+                                    UseTopHeader="@useTopHeader"
+                                    CellClass="@GetSongCellClass"
+                                    LampClass="@GetLampClass"
+                                    TitleClass="@GetSongTitleClass"
+                                    Tooltip="@GetSongTooltip" />
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+
+            @if (undecidedRows.Count > 0)
+            {
+                <section class="matrix-type-section">
+                    <div class="matrix-scroll" style="@TableMaxWidthStyle">
+                        <table class="matrix-table" aria-label="미결정 EX HARD 서열표">
+                            <tbody>
+                                <TierTableRows
+                                    Rows="@ChunkSongs(undecidedRows, columnCount)"
+                                    ColumnCount="@columnCount"
+                                    HeaderText="미결정"
+                                    UseTopHeader="@useTopHeader"
+                                    CellClass="@GetSongCellClass"
+                                    LampClass="@GetLampClass"
+                                    TitleClass="@GetSongTitleClass"
+                                    Tooltip="@GetSongTooltip" />
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            }
+        </div>
+    }
+    else
+    {
     <div class="tier-matrix-groups" style="@TableMaxWidthStyle">
         @{
             var songsByTypeAndTier = BuildSongsByTypeAndTierLookup();
@@ -196,6 +258,8 @@ else
     }
 }
 
+}
+
 @code {
     [Parameter]
     public DifficultyMode Mode { get; set; }
@@ -226,14 +290,47 @@ else
     private bool rankPointsAvailable;
     private DateTimeOffset? scoreUpdatedAtUtc;
     private string TableMaxWidthStyle => selectedTableMaxWidth > 0 ? $"max-width:{selectedTableMaxWidth}px;margin-left:auto;margin-right:auto;" : string.Empty;
-    private string ModeLabel => Mode == DifficultyMode.Hard ? "Hard" : "Normal";
-    private string PageTitleText => Mode == DifficultyMode.Hard ? "SP LEVEL 12 HARD 서열표" : "SP LEVEL 12 NORMAL 서열표";
-    private string DefaultHighlightThreshold => Mode == DifficultyMode.Hard ? "HARD CLEAR" : "CLEAR";
-    private string PreferencesKey => Mode == DifficultyMode.Hard ? IidxStorageKeys.TierTableHardOptions : IidxStorageKeys.TierTableNormalOptions;
+    private string ModeLabel => Mode switch
+    {
+        DifficultyMode.Hard => "Hard",
+        DifficultyMode.ExHard => "EX HARD",
+        _ => "Normal"
+    };
+    private string PageTitleText => Mode switch
+    {
+        DifficultyMode.Hard => "SP LEVEL 12 HARD 서열표",
+        DifficultyMode.ExHard => "SP LEVEL 12 EX HARD 서열표",
+        _ => "SP LEVEL 12 NORMAL 서열표"
+    };
+    private string DefaultHighlightThreshold => Mode switch
+    {
+        DifficultyMode.ExHard => "EX HARD CLEAR",
+        DifficultyMode.Hard => "HARD CLEAR",
+        _ => "CLEAR"
+    };
+    private string PreferencesKey => Mode switch
+    {
+        DifficultyMode.Hard => IidxStorageKeys.TierTableHardOptions,
+        DifficultyMode.ExHard => IidxStorageKeys.TierTableExHardOptions,
+        _ => IidxStorageKeys.TierTableNormalOptions
+    };
     private string RankPointText => $"{GetRankPointTotal():0.##}/200점";
 
     private void RebuildViewCaches()
     {
+        if (Mode == DifficultyMode.ExHard)
+        {
+            var exHardView = Presentation.BuildView(
+                tierRows,
+                Mode,
+                selectedTimelineVersion,
+                selectedSongSortMode.ToString(),
+                clearTypeBySong);
+            visibleRows = SortSongs(exHardView.VisibleRows.Where(row => row.ExHardPoint.HasValue));
+            undecidedRows = exHardView.UndecidedRows;
+            return;
+        }
+
         var view = Presentation.BuildView(
             tierRows,
             Mode,
@@ -252,6 +349,10 @@ else
             ApplyDeviceDefaults();
             await ApplySavedPreferencesAsync();
             await TierTableData.InitializeAsync(Http);
+            if (Mode == DifficultyMode.ExHard)
+            {
+                await ExHardThresholds.InitializeAsync(Http);
+            }
             try
             {
                 await RankPoints.InitializeAsync(Http);
@@ -375,6 +476,10 @@ else
 
     private IReadOnlyList<TierTableTitleRow> SortSongs(IEnumerable<TierTableTitleRow> songs)
         => Presentation.SortSongs(songs, selectedSongSortMode.ToString(), clearTypeBySong);
+
+    private IReadOnlyList<TierTableTitleRow> GetExHardSongs(string tierName)
+        => SortSongs(visibleRows.Where(row => ExHardThresholds.GetTier(row.ExHardPoint!.Value)
+            .Equals(tierName, StringComparison.OrdinalIgnoreCase)));
 
     private async Task LoadUserScoreCacheAsync()
     {

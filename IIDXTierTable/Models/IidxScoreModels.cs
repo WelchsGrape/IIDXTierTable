@@ -5,6 +5,7 @@ public static class IidxStorageKeys
     public const string Scores = "iidx.scores.v1";
     public const string TierTableHardOptions = "iidx.tier-table-hard.options.v1";
     public const string TierTableNormalOptions = "iidx.tier-table-normal.options.v1";
+    public const string TierTableExHardOptions = "iidx.tier-table-ex-hard.options.v1";
 }
 
 public static class IidxDifficultyNames

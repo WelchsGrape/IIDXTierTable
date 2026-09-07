@@ -3,5 +3,6 @@ namespace IIDXTierTable.Models;
 public enum DifficultyMode
 {
     Normal,
-    Hard
+    Hard,
+    ExHard
 }

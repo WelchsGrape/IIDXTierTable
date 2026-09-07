@@ -1,9 +1,20 @@
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components;
 
 namespace IIDXTierTable.Services;
 
 public sealed class TierTableDataService
 {
+    private readonly bool useLocalData;
+
+    private readonly NavigationManager navigation;
+
+    public TierTableDataService(IConfiguration configuration, NavigationManager navigation)
+    {
+        useLocalData = configuration.GetValue<bool>("UseLocalData");
+        this.navigation = navigation;
+    }
+
     public IReadOnlyList<TierTableTitleRow> Rows { get; private set; } = [];
 
     public int CurrentRankCount { get; private set; }
@@ -21,7 +32,10 @@ public sealed class TierTableDataService
 
         try
         {
-            var rows = await http.GetFromJsonAsync<List<TierTableTitleRow>>("tier-table");
+            var dataUri = useLocalData
+                ? new Uri(new Uri(navigation.BaseUri), "data/SP12TierData.json")
+                : new Uri("tier-table", UriKind.Relative);
+            var rows = await http.GetFromJsonAsync<List<TierTableTitleRow>>(dataUri);
             Rows = [.. (rows ?? []).Where(row => !string.IsNullOrWhiteSpace(row.Title))];
             CurrentRankCount = Rows.Count(row => string.Equals(row.RankTier, "1", StringComparison.Ordinal));
             ErrorMessage = null;
@@ -57,4 +71,6 @@ public sealed class TierTableTitleRow
     public string HardTier { get; init; } = string.Empty;
 
     public string RankTier { get; init; } = string.Empty;
+
+    public double? ExHardPoint { get; init; }
 }

@@ -129,6 +129,11 @@ public sealed class TierTablePresentationService(SongMatchService songMatcher)
 
     private static bool IsUndecidedRow(TierTableTitleRow row, DifficultyMode mode)
     {
+        if (mode == DifficultyMode.ExHard)
+        {
+            return !row.ExHardPoint.HasValue;
+        }
+
         var typeName = mode == DifficultyMode.Hard ? row.HardType : row.NormalType;
         var tierName = mode == DifficultyMode.Hard ? row.HardTier : row.NormalTier;
         return string.IsNullOrWhiteSpace(typeName)

@@ -23,5 +23,6 @@ builder.Services.AddScoped<TierTablePresentationService>();
 builder.Services.AddScoped<TierTableDataService>();
 builder.Services.AddScoped<HomeUpdateDataService>();
 builder.Services.AddScoped<RankPointService>();
+builder.Services.AddScoped<ExHardTierThresholdService>();
 
 await builder.Build().RunAsync();
