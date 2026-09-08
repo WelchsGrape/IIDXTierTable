@@ -548,7 +548,7 @@
         "NormalTier": "S",
         "HardType": "지력",
         "HardTier": "S",
-        "RankTier": "",
+        "RankTier": "5",
         "ExHardPoint": 2027.2
     },
     {
@@ -776,7 +776,7 @@
         "NormalTier": "B",
         "HardType": "지력",
         "HardTier": "C",
-        "RankTier": "",
+        "RankTier": "1",
         "ExHardPoint": 1765.03
     },
     {
@@ -1160,7 +1160,7 @@
         "NormalTier": "C",
         "HardType": "지력",
         "HardTier": "B",
-        "RankTier": "",
+        "RankTier": "2",
         "ExHardPoint": 1814.97
     },
     {
@@ -3236,7 +3236,7 @@
         "NormalTier": "S+",
         "HardType": "지력",
         "HardTier": "S+",
-        "RankTier": "",
+        "RankTier": "7",
         "ExHardPoint": 2534.47
     },
     {
@@ -3872,7 +3872,7 @@
         "NormalTier": "S",
         "HardType": "지력",
         "HardTier": "S",
-        "RankTier": "",
+        "RankTier": "6",
         "ExHardPoint": 2069.78
     },
     {
@@ -7172,7 +7172,7 @@
         "NormalTier": "A",
         "HardType": "지력",
         "HardTier": "A",
-        "RankTier": "",
+        "RankTier": "3",
         "ExHardPoint": 1936.36
     },
     {
@@ -7604,7 +7604,7 @@
         "NormalTier": "A",
         "HardType": "개인차",
         "HardTier": "A+",
-        "RankTier": "",
+        "RankTier": "4",
         "ExHardPoint": 2043.19
     },
     {

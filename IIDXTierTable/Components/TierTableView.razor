@@ -112,7 +112,7 @@ else
         <div class="version-selector-panel">
             <label for="timelineVersion" class="form-label mb-1">버전별 서열표</label>
             <select id="timelineVersion" class="form-select form-select-sm" @bind="selectedTimelineVersion" @bind:after="SavePreferencesAsync">
-                @foreach (var option in TimelineVersionOptions)
+                @foreach (var option in AvailableTimelineVersionOptions)
                 {
                     <option value="@option">@option</option>
                 }
@@ -273,6 +273,12 @@ else
         "SPADA", "tricoro", "Lincle", "Resort Anthem", "SIRIUS", "EMPRESS",
         "DJ TROOPERS", "GOLD", "DistorteD", "HAPPY SKY"
     ];
+    private static readonly string[] ExHardTimelineVersionOptions = TimelineVersionOptions[..^TimelineVersionOptions
+        .Reverse()
+        .TakeWhile(version => !string.Equals(version, "Lincle", StringComparison.OrdinalIgnoreCase))
+        .Count()];
+    private IReadOnlyList<string> AvailableTimelineVersionOptions
+        => Mode == DifficultyMode.ExHard ? ExHardTimelineVersionOptions : TimelineVersionOptions;
     private IReadOnlyList<TierTableTitleRow> tierRows = [];
     private IReadOnlyList<TierTableTitleRow> visibleRows = [];
     private IReadOnlyList<TierTableTitleRow> undecidedRows = [];
