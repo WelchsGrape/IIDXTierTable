@@ -49,7 +49,8 @@ public static class IidxVersionOrder
         ["RESIDENT"] = 30,
         ["EPOLIS"] = 31,
         ["Pinky Crush"] = 32,
-        ["Sparkle Shower"] = 33
+        ["Sparkle Shower"] = 33,
+        ["ZINRAI"] = 34
     };
 
     public static int Resolve(string version)
