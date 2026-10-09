@@ -544,6 +544,12 @@ else
             return "song-title-new-version";
         }
 
+        if (string.Equals(row.Version, "34", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(row.Difficulty, "ANOTHER", StringComparison.OrdinalIgnoreCase))
+        {
+            return "song-title-new-version-purple";
+        }
+
         return row.Difficulty switch
         {
             "HYPER" => "song-title-hyper",

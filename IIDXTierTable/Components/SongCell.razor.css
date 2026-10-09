@@ -50,6 +50,10 @@
     color: #65a30d;
 }
 
+.song-title-new-version-purple {
+    color: #c026d3;
+}
+
 .lamp-cell {
     flex: 0 0 0.7rem;
     align-self: stretch;
