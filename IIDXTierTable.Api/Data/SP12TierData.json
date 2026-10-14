@@ -5068,10 +5068,10 @@
     "Title": "super double play sessions",
     "MatchTitle": "",
     "Difficulty": "ANOTHER",
-    "NormalType": "",
-    "NormalTier": "",
-    "HardType": "",
-    "HardTier": "",
+    "NormalType": "지력",
+    "NormalTier": "S+",
+    "HardType": "지력",
+    "HardTier": "S+",
     "RankTier": "",
     "ExHardPoint": null
   },
@@ -6829,6 +6829,18 @@
     "ExHardPoint": 1967.12
   },
   {
+    "Version": "34",
+    "Title": "恋する☆宇宙戦争っ！！ (恋する★ハードコアRemix)",
+    "MatchTitle": "",
+    "Difficulty": "ANOTHER",
+    "NormalType": "",
+    "NormalTier": "",
+    "HardType": "",
+    "HardTier": "",
+    "RankTier": "",
+    "ExHardPoint": null
+  },
+  {
     "Version": "19",
     "Title": "子供の落書き帳",
     "MatchTitle": "",
@@ -6905,10 +6917,10 @@
     "Title": "サタデーナイト☆ギャロップ",
     "MatchTitle": "",
     "Difficulty": "ANOTHER",
-    "NormalType": "",
-    "NormalTier": "",
-    "HardType": "",
-    "HardTier": "",
+    "NormalType": "지력",
+    "NormalTier": "S",
+    "HardType": "지력",
+    "HardTier": "S",
     "RankTier": "",
     "ExHardPoint": null
   },
