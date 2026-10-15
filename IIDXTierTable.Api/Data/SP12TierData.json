@@ -6949,6 +6949,18 @@
     "ExHardPoint": 2014.09
   },
   {
+    "Version": "34",
+    "Title": "斎戒",
+    "MatchTitle": "",
+    "Difficulty": "ANOTHER",
+    "NormalType": "",
+    "NormalTier": "",
+    "HardType": "",
+    "HardTier": "",
+    "RankTier": "",
+    "ExHardPoint": null
+  },
+  {
     "Version": "26",
     "Title": "最小三倍完全数",
     "MatchTitle": "",
