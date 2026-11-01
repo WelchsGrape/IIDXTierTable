@@ -5821,6 +5821,18 @@
     "ExHardPoint": 1788.06
   },
   {
+    "Version": "34",
+    "Title": "Vairocana",
+    "MatchTitle": "",
+    "Difficulty": "ANOTHER",
+    "NormalType": "",
+    "NormalTier": "",
+    "HardType": "",
+    "HardTier": "",
+    "RankTier": "",
+    "ExHardPoint": null
+  },
+  {
     "Version": "20",
     "Title": "Valanga",
     "MatchTitle": "",
@@ -8183,6 +8195,18 @@
     "HardTier": "S",
     "RankTier": "5",
     "ExHardPoint": 1993.77
+  },
+  {
+    "Version": "34",
+    "Title": "露照陀仏",
+    "MatchTitle": "",
+    "Difficulty": "ANOTHER",
+    "NormalType": "",
+    "NormalTier": "",
+    "HardType": "",
+    "HardTier": "",
+    "RankTier": "",
+    "ExHardPoint": null
   },
   {
     "Version": "31",

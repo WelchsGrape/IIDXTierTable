@@ -1,4 +1,10 @@
-// 개발 환경에서는 항상 네트워크에서 가져오며 오프라인 지원을 활성화하지 않습니다.
-// 캐시를 사용하면 개발이 불편해지기 때문입니다. 변경 사항이 적용된 후에도
-// 첫 번째 로드에서 변경 내용이 반영되지 않을 수 있습니다.
-self.addEventListener('fetch', () => { });
+// 오프라인 캐시를 사용하지 않습니다.
+// 이전에 설치된 서비스 워커와 캐시를 정리하기 위한 파일입니다.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', event => event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(key => caches.delete(key)));
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach(client => client.navigate(client.url));
+})()));
