@@ -2668,7 +2668,7 @@
     "Title": "INAZUMA",
     "MatchTitle": "",
     "Difficulty": "LEGGENDARIA",
-    "NormalType": "개인차",
+    "NormalType": "지력",
     "NormalTier": "A",
     "HardType": "지력",
     "HardTier": "A",
@@ -3198,7 +3198,7 @@
     "Difficulty": "ANOTHER",
     "NormalType": "지력",
     "NormalTier": "A",
-    "HardType": "지력",
+    "HardType": "개인차",
     "HardTier": "A+",
     "RankTier": "5",
     "ExHardPoint": 2108.62
